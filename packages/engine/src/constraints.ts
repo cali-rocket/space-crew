@@ -29,6 +29,30 @@ export function evaluateConstraint(def: ConstraintDef, state: GameState): 'pendi
       }
       return idxs.every((i) => i >= 0) ? 'satisfied' : 'pending';
     }
+    case 'player-trick-count': {
+      const target = state.roles[def.role];
+      if (target === undefined) return 'pending';
+      const won = state.trickHistory.filter((t) => t.winner === target);
+      if (!def.rocketAllowed && won.some((t) => winningCard(t, t.winner).suit === 'rocket')) return 'violated';
+      if (won.length > def.count) return 'violated';
+      return won.length === def.count ? 'satisfied' : 'pending';
+    }
+    case 'player-exact-tricks': {
+      const target = state.roles[def.role];
+      if (target === undefined) return 'pending';
+      const TOTAL = 13;
+      const required = def.tricks === 'first-last' ? [0, TOTAL - 1] : def.tricks;
+      const reqSet = new Set(required);
+      for (let i = 0; i < state.trickHistory.length; i++) {
+        const t = state.trickHistory[i]!;
+        const wonByTarget = t.winner === target;
+        if (reqSet.has(i) && !wonByTarget) return 'violated';
+        if (def.exclusive && !reqSet.has(i) && wonByTarget) return 'violated';
+        if (wonByTarget && !def.rocketAllowed && winningCard(t, t.winner).suit === 'rocket') return 'violated';
+      }
+      const allRequiredDone = required.every((i) => i < state.trickHistory.length);
+      return allRequiredDone ? 'satisfied' : 'pending';
+    }
     default:
       return 'pending'; // 후속 태스크에서 구현
   }
