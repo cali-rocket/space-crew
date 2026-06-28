@@ -1,4 +1,4 @@
-import { createGame, GameState, CompletedTrick } from './state';
+import { createGame, GameState, CompletedTrick, ConstraintDef } from './state';
 import { evaluateConstraint } from './constraints';
 import { Card } from './cards';
 
@@ -27,14 +27,14 @@ test('task-in-last-trick: satisfied if won in trick index 12', () => {
 });
 
 test('trick-partition: each range won by its role player', () => {
-  const def = {
+  const def: ConstraintDef = {
     kind: 'trick-partition',
     parts: [
       { role: 'a', range: 'first4' },
       { role: 'b', range: 'last' },
       { role: 'c', range: 'middle' },
     ],
-  } as const;
+  };
   const roles = { a: 'p0', b: 'p1', c: 'p2' };
   const hist = Array.from({ length: 13 }, (_, i) =>
     tkCards(i < 4 ? 'p0' : i === 12 ? 'p1' : 'p2', [C('blue', 5)]),
