@@ -21,6 +21,17 @@ export type OrderToken =
   | { kind: 'last' }
   | { kind: 'relative'; chevrons: number };
 
+export type ConstraintDef =
+  | { kind: 'forbid-win-value'; value: number }
+  | { kind: 'win-value-count'; value: number; count: number; distinct?: boolean }
+  | { kind: 'win-cards'; cards: Card[]; ordered: boolean }
+  | { kind: 'player-trick-count'; role: string; count: number; rocketAllowed: boolean }
+  | { kind: 'player-exact-tricks'; role: string; tricks: number[] | 'first-last'; exclusive: boolean; rocketAllowed: boolean }
+  | { kind: 'balance'; maxDiff: number }
+  | { kind: 'task-in-last-trick'; card: Card }
+  | { kind: 'trick-partition'; parts: { role: string; range: 'first4' | 'last' | 'middle' }[] }
+  | { kind: 'pink-left-sweep' };
+
 export interface TaskAssignment {
   card: Card;
   owner: PlayerId;
@@ -52,6 +63,8 @@ export interface GameState {
   distressActive: boolean;
   distressDirection?: 'left' | 'right';
   distressCommits?: Record<PlayerId, Card>;
+  roles: Record<string, PlayerId>;
+  constraints: ConstraintDef[];
 }
 
 export function createGame(args: {
@@ -61,6 +74,8 @@ export function createGame(args: {
   attemptNumber?: number;
   communicationPolicy?: CommunicationPolicy;
   distressActive?: boolean;
+  constraints?: ConstraintDef[];
+  roles?: Record<string, PlayerId>;
 }): GameState {
   const {
     players,
@@ -69,6 +84,8 @@ export function createGame(args: {
     attemptNumber = 1,
     communicationPolicy = 'normal',
     distressActive = false,
+    constraints = [],
+    roles = {},
   } = args;
   if (players.length !== 3) throw new Error('exactly 3 players required');
   const dealt = dealHands(seed);
@@ -92,5 +109,7 @@ export function createGame(args: {
     communication: [],
     communicationPolicy,
     distressActive,
+    roles,
+    constraints,
   };
 }
