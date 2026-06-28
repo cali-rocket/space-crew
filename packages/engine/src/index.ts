@@ -8,3 +8,6 @@ export * from './assign';
 export * from './play';
 export * from './outcome';
 export * from './loop';
+export * from './comm';
+export * from './distress';
+export * from './order';

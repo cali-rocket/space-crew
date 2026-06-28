@@ -5,10 +5,27 @@ import { dealHands, findCommander } from './deal';
 export type PlayerId = string;
 export type Phase = 'task-assignment' | 'trick-in-progress' | 'mission-result';
 
+export type CommToken = 'highest' | 'only' | 'lowest';
+export interface CommState {
+  player: PlayerId;
+  card: Card;
+  token: CommToken | null;
+}
+export type CommunicationPolicy =
+  | 'normal'
+  | 'dead-zone'
+  | { noCommUntilTrick: number }
+  | { oneMemberNoComm: true };
+export type OrderToken =
+  | { kind: 'absolute'; position: number }
+  | { kind: 'last' }
+  | { kind: 'relative'; chevrons: number };
+
 export interface TaskAssignment {
   card: Card;
   owner: PlayerId;
   fulfilled: boolean;
+  order?: OrderToken;
 }
 
 export interface CompletedTrick {
@@ -28,6 +45,13 @@ export interface GameState {
   trickHistory: CompletedTrick[];
   tasks: TaskAssignment[];
   outcome: 'in-progress' | 'won' | 'lost';
+  commUsed: Record<PlayerId, boolean>;
+  communication: CommState[];
+  communicationPolicy: CommunicationPolicy;
+  appointedNoCommPlayer?: PlayerId;
+  distressActive: boolean;
+  distressDirection?: 'left' | 'right';
+  distressCommits?: Record<PlayerId, Card>;
 }
 
 export function createGame(args: {
@@ -35,8 +59,17 @@ export function createGame(args: {
   missionId: number;
   seed: number;
   attemptNumber?: number;
+  communicationPolicy?: CommunicationPolicy;
+  distressActive?: boolean;
 }): GameState {
-  const { players, missionId, seed, attemptNumber = 1 } = args;
+  const {
+    players,
+    missionId,
+    seed,
+    attemptNumber = 1,
+    communicationPolicy = 'normal',
+    distressActive = false,
+  } = args;
   if (players.length !== 3) throw new Error('exactly 3 players required');
   const dealt = dealHands(seed);
   const hands: Record<PlayerId, Card[]> = {};
@@ -55,5 +88,9 @@ export function createGame(args: {
     trickHistory: [],
     tasks: [],
     outcome: 'in-progress',
+    commUsed: Object.fromEntries(players.map((p) => [p, false])),
+    communication: [],
+    communicationPolicy,
+    distressActive,
   };
 }

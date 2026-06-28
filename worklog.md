@@ -80,7 +80,21 @@
   - Task 1~9 (TDD, bite-sized): 스캐폴딩 → 카드 → 시드RNG/셔플 → 딜/커맨더 → 트릭규칙 → GameState → 태스크배정 → applyPlay(달성/위반) → 승패평가/시도·미션 루프.
   - 순수 함수·결정성(시드 주입)·태스크-only 미션 한정(특수규칙은 후속 계획). 자체 점검 완료.
 
+## 엔진 코어 구현 (2026-06-29, 서브에이전트 구동)
+- git 초기화 + `engine-core` 브랜치. 태스크별 implementer(haiku) → 독립 reviewer(haiku/sonnet) → ledger 기록.
+- **Task 1~9 전부 완료** (커밋 `0315d8c..33c6a00`):
+  스캐폴딩 → 카드 → 시드RNG/셔플 → 딜/커맨더 → 트릭규칙 → GameState → 태스크배정 → applyPlay(달성/위반) → 승패평가/시도·미션 루프.
+- **전체 36 테스트 통과, 타입체크 0 에러.** 순수 함수·결정성(시드 주입)·런타임 의존성 0.
+- 최종 전체-브랜치 리뷰(opus): **MERGE-READY**, Critical/Important 0, Minor 4건 모두 수용가능.
+  - 진행 원장: `.superpowers/sdd/progress.md`.
+  - 옵션 후속: play.test.ts 미사용 `withHands` 헬퍼 제거; engine-core 계획 산문(assignTask 자동전이) 정정.
+
+## 브랜치 마무리 (2026-06-29)
+- `engine-core` → `main` 로컬 머지(`--no-ff`, merge commit `4f03375`). 병합 결과 36/36 테스트 통과. 브랜치 삭제.
+- 현재 `main`이 엔진 코어를 포함. 원격 미설정(로컬 전용).
+
 ## 다음 할 일
-- [x] spec v2 확정
-- [x] 구현 계획 1(엔진 코어) 작성
-- [ ] 실행 방식 선택(서브에이전트 구동 vs 인라인) → 구현 시작
+- [x] spec v2 / 계획1 / 엔진 코어 구현 / main 머지
+- [ ] (옵션) play.test.ts 미사용 withHands 제거, 계획1 산문 정정
+- [ ] 계획 2: 통신·조난·순서토큰·배정방식 (엔진)
+- [ ] 이후: 50미션 데이터 → 서버 → 클라 → 캠페인
