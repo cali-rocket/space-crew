@@ -148,7 +148,11 @@ export function constraintsAllSatisfied(state: GameState): boolean {
 ```
 (주: 제약은 방금 완료된 트릭까지 반영해 평가해야 하므로 `trickHistory`에 `completed`를 포함한 임시 state로 평가한다. `tasks`도 갱신본을 넘긴다.)
 
-- [ ] **Step 7: outcome.ts 통합** — `import { constraintsAllSatisfied } from './constraints';`. `evaluateOutcome`의 승리 판정을 `allTricksPlayed(state) && allFulfilled && constraintsAllSatisfied(state)`로 바꾸고, **추가**: `allTricksPlayed(state)`인데 (모든 태스크 fulfilled가 아니거나 제약 미satisfied)이면 `outcome='lost', phase='mission-result'` 반환(13트릭 끝났는데 목표 미달 = 패배). 기존 lost-우선 유지.
+- [ ] **Step 7: outcome.ts 통합** — `import { constraintsAllSatisfied } from './constraints';`.
+  - 먼저 `allTricksPlayed`를 견고화: 기존 `maxHand <= 1`에 **`state.trickHistory.length >= 1`** 조건을 AND로 추가한다. (1장-손패 미니게임은 플레이 전에도 maxHand=1이라 '종료'로 오판되므로, 트릭이 최소 1회 완료된 경우에만 종료로 본다. 실제 13트릭 게임은 항상 trickHistory가 있으므로 영향 없음. 이로써 기존 "in-progress 유지" 테스트가 보존된다.)
+  - 승리 판정: `allTricksPlayed(state) && allFulfilled && constraintsAllSatisfied(state)` → `won`.
+  - **패배 추가**: `allTricksPlayed(state)`인데 (모든 태스크 fulfilled가 아니거나 제약 미satisfied)이면 `outcome='lost', phase='mission-result'`. (트릭 다 끝났는데 목표 미달 = 패배.)
+  - 기존 lost-우선(이미 lost면 mission-result) 유지.
 
 - [ ] **Step 8: 테스트 통과 확인** — Run: `npm test --workspace @space-crew/engine` → PASS(신규 + 기존 71, 단 outcome 변경으로 기존 outcome 테스트가 영향받으면 그 테스트의 손패/태스크 구성을 점검; 기존 미니 미션은 제약 없음·태스크 fulfilled라 won 유지되어야 함).
 
