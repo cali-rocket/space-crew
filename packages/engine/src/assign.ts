@@ -86,3 +86,15 @@ export function handoverTask(state: GameState, from: PlayerId, to: PlayerId, car
   const tasks = state.tasks.map((t, i) => (i === idx ? { ...t, owner: to } : t));
   return { ...state, tasks };
 }
+
+export function assignRole(state: GameState, key: string, player: PlayerId): GameState {
+  if (!state.players.includes(player)) throw new Error(`unknown player ${player}`);
+  return { ...state, roles: { ...state.roles, [key]: player } };
+}
+
+export function derivePink9Holder(state: GameState): PlayerId {
+  for (const p of state.players) {
+    if ((state.hands[p] ?? []).some((c) => c.suit === 'pink' && c.value === 9)) return p;
+  }
+  throw new Error('pink 9 not held by anyone');
+}

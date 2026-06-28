@@ -78,6 +78,16 @@ export function evaluateConstraint(def: ConstraintDef, state: GameState): 'pendi
       }
       return state.trickHistory.length >= 13 ? 'satisfied' : 'pending';
     }
+    case 'pink-left-sweep': {
+      const holder = state.roles['pink9holder'];
+      if (holder === undefined) return 'pending';
+      const idx = state.players.indexOf(holder);
+      const target = state.players[(idx - 1 + state.players.length) % state.players.length]!;
+      for (const t of state.trickHistory) {
+        if (t.plays.some((p) => p.card.suit === 'pink') && t.winner !== target) return 'violated';
+      }
+      return state.trickHistory.length >= 13 ? 'satisfied' : 'pending';
+    }
     default:
       return 'pending'; // 후속 태스크에서 구현
   }
