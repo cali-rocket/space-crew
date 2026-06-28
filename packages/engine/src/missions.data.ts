@@ -156,7 +156,7 @@ export const MISSIONS: MissionDef[] = [
     id: 17,
     sourceText: 'You are still not allowed to win a trick with a 9-value card.',
     logbookPage: 5,
-    taskCount: 5,
+    taskCount: 2,
     constraints: [{ kind: 'forbid-win-value', value: 9 }],
   },
   {
@@ -187,7 +187,7 @@ export const MISSIONS: MissionDef[] = [
     id: 21,
     sourceText: 'You hardly notice the reception dead spot.',
     logbookPage: 6,
-    taskCount: 3,
+    taskCount: 5,
     communication: 'dead-zone',
   },
   {
@@ -259,7 +259,7 @@ export const MISSIONS: MissionDef[] = [
     id: 30,
     sourceText: 'You are only allowed to communicate starting from the 2nd trick.',
     logbookPage: 7,
-    taskCount: 3,
+    taskCount: 6,
     communication: { noCommUntilTrick: 2 },
   },
 
@@ -284,7 +284,7 @@ export const MISSIONS: MissionDef[] = [
     sourceText:
       'The selected crew member must win exactly 1 trick, but not with a Rocket card.',
     logbookPage: 8,
-    taskCount: 7,
+    taskCount: 0,
     constraints: [{ kind: 'player-trick-count', role: 'chosen', count: 1, rocketAllowed: false }],
     assignment: 'commander-decision',
   },
@@ -293,7 +293,7 @@ export const MISSIONS: MissionDef[] = [
     sourceText:
       'At no time may a crew member have won 2 tricks more than another crew member. Your Commander must win the first and last trick.',
     logbookPage: 8,
-    taskCount: 7,
+    taskCount: 0,
     constraints: [
       { kind: 'balance', maxDiff: 1 },
       {
@@ -317,7 +317,7 @@ export const MISSIONS: MissionDef[] = [
     sourceText:
       'Your Commander distributes the individual orders.',
     logbookPage: 8,
-    taskCount: 7,
+    taskCount: 0,
     assignment: 'commander-distribution',
   },
 
@@ -359,7 +359,7 @@ export const MISSIONS: MissionDef[] = [
     sourceText:
       'Your mission is that this person only wins the first and last trick. Since only the thrusters are used for position correction, both tricks may not be won with Rocket cards.',
     logbookPage: 9,
-    taskCount: 8,
+    taskCount: 0,
     constraints: [
       {
         kind: 'player-exact-tricks',
@@ -393,7 +393,7 @@ export const MISSIONS: MissionDef[] = [
     sourceText:
       'Each Rocket card must win a trick. First the 1-Rocket, then the 2, the 3 and finally the 4.',
     logbookPage: 10,
-    taskCount: 9,
+    taskCount: 0,
     constraints: [
       {
         kind: 'win-cards',
@@ -419,7 +419,7 @@ export const MISSIONS: MissionDef[] = [
     sourceText:
       'Your mission is for the crew member to the left of the one with the pink 9 to win all the pink cards. Declare who owns the pink 9.',
     logbookPage: 10,
-    taskCount: 10,
+    taskCount: 0,
     constraints: [{ kind: 'pink-left-sweep' }],
     // Role 'pink9holder' must be bound at setup via derivePink9Holder + assignRole.
   },
@@ -455,7 +455,7 @@ export const MISSIONS: MissionDef[] = [
     sourceText:
       'A crew member must win the first 4 tricks. Another crew member must win the last trick. The remaining crew members must win all tricks in between. Your Commander asks everyone for his preferred task, then you decide together as a crew who should take over which position.',
     logbookPage: 11,
-    taskCount: 10,
+    taskCount: 0,
     constraints: [
       {
         kind: 'trick-partition',
