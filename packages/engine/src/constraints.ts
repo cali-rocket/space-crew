@@ -60,6 +60,24 @@ export function evaluateConstraint(def: ConstraintDef, state: GameState): 'pendi
       if (Math.max(...vals) - Math.min(...vals) > def.maxDiff) return 'violated';
       return state.trickHistory.length >= 13 ? 'satisfied' : 'pending';
     }
+    case 'task-in-last-trick': {
+      const idx = state.trickHistory.findIndex((t) => t.plays.some((p) => sameCard(p.card, def.card)));
+      if (idx === -1) return 'pending';
+      return idx === 12 ? 'satisfied' : 'violated';
+    }
+    case 'trick-partition': {
+      const roleFor = (i: number): string | undefined => {
+        const range = i < 4 ? 'first4' : i === 12 ? 'last' : 'middle';
+        return def.parts.find((p) => p.range === range)?.role;
+      };
+      for (let i = 0; i < state.trickHistory.length; i++) {
+        const role = roleFor(i);
+        const target = role !== undefined ? state.roles[role] : undefined;
+        if (target === undefined) return 'pending';
+        if (state.trickHistory[i]!.winner !== target) return 'violated';
+      }
+      return state.trickHistory.length >= 13 ? 'satisfied' : 'pending';
+    }
     default:
       return 'pending'; // 후속 태스크에서 구현
   }
