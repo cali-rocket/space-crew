@@ -1,0 +1,866 @@
+Game Materials............................................ 2
+Game Overview............................................ 3
+Communication........................................... 5
+Mission Preparation & Sequence............. 8
+Degree of Difficulty & Distress Signals .12
+Symbols & Tokens...................................... 14
+Playing with Five Players........................ 18
+Playing with Two Players........................ 19
+Tips & Variants........................................... 21
+
+1 Author & Imprint....................................... 22
+Helper App                              Astronauts wanted! Scientists say there is a mysterious
+                                        ninth planet located at the edge of our solar system. But
+ Download the free bonus app            despite all of their efforts, so far they have been unable
+  Game tutorial                         to provide substantial evidence of its existence. Join this
+For Android, iOS, and Fire. Check       exciting space adventure to find out if the theories are just
+    the app stores for details.         science fiction or if you will discover Planet Nine.
+
+               Download                 In this cooperative trick-taking game you need to complete
+               the free                 50 different missions. But you will only succeed if you can
+               Kosmos                   work together as a team. To master the challenges and
+               Helper App!              achieve your mission, communication will be essential --
+                                        but in space, things can be more difficult than you expect ...
+
+     Ages
+
+     10+
+
+     Players
+
+     3­5*                               GAM E MATE R IALS
+
+     * two-player                       40Large cards (playing cards) 333  3333
+      variant is                        36 C olor cards
+     on page 19
+                                        in four colors with
+
+                                        the values 1-9
+
+                                        4 Rocket cards            3333     3333
+                                          with the values 1-4
+
+                                        5 Large reminder cards
+
+115  115 111                       111 36Small cards        33 222 44 77
+
+                                        (task cards)
+
+                                                            77 44 22 33
+
+1111 1111 1115 1115                     16 Tokens
+
+                                        10 task tokens
+
+     111 1111                            5 radio communication tokens
+111                                1111  1 distress signal token
+
+                                        1 commander token
+
+                                        1 rulebook/logbook
+
+111  111 111                       111
+
+     2
+ The Crew is a cooperative, mission-based trick-taking                ATTENTION
+ game. What does this mean?                                          If you cannot easily
+                                                                     distinguish between
+Cooperative                                                          the colors of the cards,
+You win together, or you lose together -- only if each of you        you can use these four
+is successful, and you help each other, will you be able to          symbols instead:
+complete the missions and win the game.
+                                                                     Each color of the
+Mission-based                                                        cards has also been
+Your journey spans 50 different missions, each with a unique         assigned a symbol.
+win condition, which you play through consecutively as a
+cohesive story. But you can also play the missions out of            The Crew offers you
+order if that is your preference. The missions can be found in       a story, but you can
+the logbook at the end of this rulebook.                             just as easily play
+                                                                     missions of your
+You will probably not be able to play through this adventure         choice, because no
+all at once. Therefore, it is best to get together on several        two attempts will
+different occasions to play through all of the missions. The first   work out the same
+few missions rarely take more than five minutes to complete.         way. Play the way
+However, later on, you will need more time for each individual       you enjoy the most.
+mission, as they get progressively harder.
+                                                                    This column contains
+Trick-taking game                                                   a brief and concise
+All of the cards are distributed to "The Crew" (the players),       overview of the most
+and then, in turn order each player plays one of his or her         important rules--
+own cards face up in the middle of the table. This playing of       so you can quickly
+one card by each is called the "trick." The player who places       find your way back
+the card with the highest value wins the trick, but only if that    into the game after a
+player has followed suit.                                           long break.
+
+There are five card suits: pink, blue, green, yellow, and                   3
+rocket cards. Following suit means that each player must
+"follow" the suit choice of the first player; i.e., you have to
+play a card of the same type. Only if you do not have a card
+of this suit may you play a card of a different suit.
+In each round, each        However, the trick can only be won with cards that have
+crew member plays          followed suit. The card with the highest numeric value in the
+a card in a clockwise      designated suit wins the trick. A trick that has been won is
+order. These cards         set aside face down. You may only take a look at the cards
+make up the trick. The     from the trick won most recently.
+highest card played
+wins the trick.            During a trick, there is no mandate to play a specific card.
+                           If you have multiple cards that you can play, you may play a
+The initial card played    low card, even though you would have been able to win the
+sets the suit that must    trick with a higher card. In other words, you are not forced to
+be played for each trick.  win the trick.
+This is applicable for
+both color cards and       The rocket cards are trump cards. This means that they
+rocket cards.              always win the trick, no matter which other cards are in play.
+                           During a color-suited trick, a rocket may only be played if
+If a suit cannot be        a card in the color suit cannot be played. If a rocket card is
+followed, then any         played first, this will establish the suit and must be followed
+card of your choice        if possible. If several rockets are in contention, the one with
+can be played.             the highest value wins.
+
+Only cards of the          The following examples show which card type (or suit) has to
+designated suit can win    be played -- i.e., which card was first played in the trick:
+the trick, unless they
+are rockets. You are not   28 2 8                     53 5 3
+required to win a trick.
+                               28                                                53
+Rockets are trump
+cards and win in any       82                         35
+trick. If there are
+several rockets in a       The yellow 8 and 6 were The green 3 establishes the suit.
+trick, the rocket card
+with the highest value     played following the suit  5 is higher and thus wins the trick.
+wins the trick.
+                           established by the first card Because even though 9 had the
+Tricks that are won are
+set aside face down;       played, the yellow 2 . 8 is highest value it did not follow suit
+only the last trick can    higher and thus wins the trick. and thus cannot win.
+be looked at.
+
+    4
+ In The Crew, it's always about the right players                 Rule of thumb for
+ winning the right tricks. You're really going to need            the exchange of
+ to coordinate to accomplish the mission.                         information:
+                                                                  If you know something
+Communication                                                     only because you know
+An important rule in this game is that you                        your own cards, you
+cannot talk about the cards in your hand. You                     are not allowed to talk
+are not allowed to show, say or suggest to other                  about this information.
+crew members which cards you have. But there
+is a possibility of communication in the form of                  The maximum is
+radio communication tokens. Each of you has                       one communication
+one radio communication token, which can be                       per crew member per
+used exactly once per mission. It may be used at any time         mission attempt.
+before a trick, but never during it. If you fail in a mission
+attempt, you may of course use it again during the next           Communication can
+attempt.                                                          only happen after
+                                                                  the task distribution
+If there are task cards in the game, you must first divide        phase and then every
+them among you, before you can communicate. We will               time before a trick
+explain task cards on page 8.                                     begins, but never
+                                                                  during the trick.
+
+7       7  1                      3       3  2
+   13          3                     24          4
+
+           7 3                               3 4
+            1                                 2
+   317                               423
+
+The blue 3 was played. 7 is       The first card played was the
+
+higher and would win the trick.   3 of rockets. As such 2
+
+However the 1 card is a rocket    and 4 both played rockets
+
+card, and rocket cards are trump  as well. The highest rocket in
+
+cards, so it wins the trick.      the trick is the 4 ; therefore  5
+                                  it wins the trick.
+Communication:             If you want to communicate, take one of your color cards
+                           and put it face up in front of you so everyone can see it. This
+1. Lay out one color card  card remains part of your set of cards, so it can be played in
+  (no rocket cards)        the normal way. The only difference is that every other crew
+                           member now knows you have this card as well. Then place
+2. Place the radio         your radio communication token with the green side up on
+  communication token      the card to give your crew members even more information:
+  > Top = highest
+  > middle = single        > A t the top, if it is your highest card of this color.
+  > bottom = lowest
+                           > In the middle, if it is your only card of this color.
+3.Take a reminder card
+  into your hand           > A t the bottom, if it is your lowest card of this color.
+
+                                           2  2
+
+                                           2  2
+
+                                    Your highest Your only Your lowest
+                                     pink card yellow card green card
+
+Rocket cards can never     One of these conditions must apply; Otherwise, you are not
+be communicated.           allowed to choose that card to communicate with. Rocket
+                           cards may never be communicated!
+
+   2                                84            6 cannot be communicated, as
+         2                 84 12           1 it is neither the highest nor the lowest,
+
+                                 2  84       2 nor is it the only yellow card in the
+                           2                     hand. The rocket may never
+                           2148
+                                        1        be communicated. All of the other
+
+                                                 cards can be communicated.
+
+                                        2
+
+6
+The placement of the radio communication tokens may         The placement of the
+not be changed if the statement is no longer correct. For   radio communication
+example, a communicated "highest" card may become           tokens must not
+the "only" card during the game. Nevertheless, the radio    be changed, even if
+communication token may not be moved.                       the statement is no
+                                                            longer accurate.
+After placing a card and radio communication
+token, take one of the reminder cards into                  Reminder cards are
+your hand. Its purpose is to remind you that                discarded as soon as
+your communicated card is still on the table.               the communicated
+If you play it, you can put down the reminder               card is played.
+card again. When you do this, flip the radio communication
+token to the red side to indicate that you have already
+communicated in this mission.
+
+Reminder cards look different from all other cards on both
+sides of the card, so your crew members can see that you
+have a reminder card in your hand.
+
+                                                            7
+Playing cards are        M ISSION PR E PARATION
+distributed to the crew
+members -- these are     Carry out the following steps before each mission:
+used to play with.
+                         1. S huffle the 40 large playing cards and distribute them
+Task cards specify          face down and equally to all crew members.
+which playing card
+must be won in a         If there are three of you playing, one person will get
+specific trick.             one more card than the rest. After the last trick, the card
+                            that is left remains unplayed.
+Whoever has the
+four rocket gets the     2.Each person puts a radio communication token with
+commander token             the green side up in front of himself or herself. Put a
+for the current             reminder card for everyone at the ready.
+mission attempt. The
+commander is still a     3. P lace the distress signal token face down.
+member of the crew.      4. Shuffle the 36 small task cards and put them down as a
+
+    8                       concealed pile. Keep the task tokens handy.
+
+                         MISSION SEQUENCE
+
+                         In most missions you will have to fulfill a certain number
+                         of tasks. These tasks are indicated with task cards, which
+                         are smaller versions of the color cards. Unless a mission
+                         dictates otherwise, crew members divide mission tasks
+                         among themselves. You can discern how many tasks there
+                         are by means of this symbol: 4
+
+                         Take the specified number of task cards from the task card
+                         deck and place them face up in the center of the table. All
+                         other task cards are not required for carrying out the current
+                         mission. Now look at the cards in your hands. Whoever has
+                         the four rocket announces this and is the commander for the
+                         current mission. This crew member receives the commander
+                         token as a reminder.
+
+                         Your commander will always be the first to choose a task card
+                         from the center of the table and place it face up in front of
+                         himself or herself. Then everyone else will take a task card.
+Each crew member selects a task card one at a time until all     Task cards are divided
+the tasks have been distributed. Each player could get several   clockwise among the
+tasks and not all players will necessarily have the same         crew members, starting
+number of tasks.                                                 with the commander.
+
+In the first missions there are only a few tasks. Not everyone
+will have a task and the tasks are often played out quickly.
+
+Daniel                                                                                        Caro
+
+        5  187
+
+        5  781                                                         4
+
+                                                                 7
+
+                                                                 4                   7     4
+                                                                                   4
+                                                                                 3
+                                                                               75
+                                                                 3             3
+                                                                    4          4
+
+                                                                 7                    34
+                                                                   7
+                                                                                           Tom
+                                                                 5                 474375
+                                                                   34              9
+
+                                                                 7            4
+                                                                    34
+   Julia                                                            5
+                                                                 3
+Example setup and card distribution for mission 18
+in the logbook: Tom has the 4 rocket. This means he
+is the commander for this mission and will be the first to
+choose one of the task cards. He chooses the pink 1 , since
+he has the pink 9 in his hand and the pink 1 should be
+easy to win. Julia and Daniel each choose a blue task. Caro
+only has the choice between green and yellow and decides
+to play green. Since there is still a task in the middle, Tom
+has to take the remaining yellow task card. It won't be easy
+to fulfill this task since his hand does not contain any yellow
+cards.
+Each task specifies        A task is fulfilled when a crew member wins a trick
+a playing card that        containing the playing card matching one of his or her task
+must be won. A task is     cards. He or she then turns the corresponding task card over,
+fulfilled when its owner   face down in front of himself or herself. A crew member
+wins the corresponding     can also fulfill several tasks with the same trick. As soon
+playing card in a trick.   as each one of you has completed your own tasks, you have
+                           completed the mission successfully and can start the next
+When all the tasks of      mission immediately. Upon the successful completion of a
+the respective mission     mission you should enter in the logbook how many attempts
+are fulfilled, you have    you needed to complete that mission.
+completed the mission.
+                           If a player wins even a single playing card for which another
+If a task is fulfilled by  player has the corresponding task card, you lose immediately
+a crew member who          and have to restart the mission from the beginning. For each
+does not possess the       new attempt, you reshuffle all the cards, deal each crew
+appropriate task card      member new cards, and receive new tasks.
+or if a crew member
+violates a special rule,   Once all the tasks have been distributed, the commander
+you have lost.             starts the first trick. And then for the remainder of the
+                           mission attempt, the person who won the previous trick
+The commander always       always starts the next trick.
+starts the first trick.
+All further tricks         Some missions do not use task cards. During these missions,
+are started by the         the commander will start the first trick.
+person who won the
+previous trick.
+
+10
+                          55                    88
+
+Daniel                                                                      Caro
+
+                              2           2        1
+                                2               1
+                                          1
+                                      5  2   1
+
+                              5           5                              4
+                                   5
+                                                                         7
+
+                                                                  4               4      47
+                                                                                3
+                                                                  3          7
+                                                                    4       53
+
+                                                                  7         4
+                                                                    7               4
+
+                                                                  35                    Tom4743753
+                                                                    734
+                                                17
+Julia                                                             5
+
+                                                71                       3
+                                                                          4
+                                                                  4
+
+As commander, Tom starts the game. He opens the first trick       The commander is
+with his pink 9 and hopes to win the pink 1 . Julia plays a       always the player
+pink 5 in the trick. Daniel does not have any pink cards in       with the four rocket.
+his hand and therefore plays a card of his choice: the yellow     The duties of the
+2 . Caro has a pink 1 and plays it in the trick. Tom has the      commander are:
+highest value of the pink cards played and thus wins the          1.start the selection
+trick. His task, to win the pink 1 , is thereby fulfilled and he
+turns over his task card.                                           of the tasks
+                                                                  2.start the first trick
+ LET'S GO!                                                        3.implement the
+ You now know all the basic rules and can start with your first
+ mission. To do so, flip this book over and read the logbook.       special rules of
+ On pages 12 and 13, you will find information about the            individual missions
+ degree of difficulty and a help system, in case you need
+ some support. Starting from page 14, new rules and symbols              11
+ are explained. You will come across them in your logbook.
+ Starting on page 19, the game is explained for playing with
+ two players.
+A distress signal can      D E G R E E O F D I F F I C U LT Y
+be sent out before the
+first trick of a mission.  A well-intentioned piece of advice: Do not be under the
+The distress signal        illusion that the tasks ahead are always easy. You will find
+token is turned to its     that with every game you get better and every setback
+active side and the        improves your understanding of the processes and your
+distress signal field is   ability to play the game. In general, the 50 missions get
+circled in the logbook.    increasingly more difficult as you progress. We therefore
+                           recommend that you play them in order. With four players,
+If the distress signal is  in the first mission alone there are over 42 trillion possible
+activated, each crew       ways that the cards can be distributed and in later missions
+member may pass one        the number is even greater. It can therefore happen that a
+card to his neighbor.      mission proves to be surprisingly simple or unexpectedly
+Rockets may not be         difficult due to the card distribution. Accept that -- the
+passed on!                 universe does not cooperate. The gameplay of The Crew will
+                           vary depending on the number of players. Playing with three
+    12                     players will be a smaller challenge than playing with four or
+                           even five players (see pages 18 and 21).
+
+                           You may also experience a situation when looking at your
+                           (remaining) cards where you become convinced that you
+                           cannot accomplish the mission. Withhold the urge to
+                           communicate this to your crew members or to reveal your
+                           cards. Far too often a detail is overlooked, forgotten, or too
+                           hastily judged. In such a situation, simply play out the round
+                           -- it won't take long, and you may still emerge victorious.
+
+                           HELP MECHANIC: DISTRESS SIGNALS
+
+                           When the going gets tough, you can count on the support
+                           of your ground team even when you're in space. At the
+                           beginning of each mission, after distributing all of the playing
+                           cards and, if applicable, task cards, but before any crew
+                           member communicates, you can send a distress signal to the
+                           control center on Earth. In order to do so, decide together
+                           whether you want to make use of this assistance, then turn
+the distress signal token to its active side (satellite).         Either all crew members
+                      Distress signal token                       have to pass on a card
+                                                                  or none, and all have
+active  inactive                                                  to choose the same
+                                                                  direction.
+
+Then immediately circle the distress signal field of the current  Rockets are never
+mission in the logbook. Each crew member now has to hand          passed on.
+over one of his or her cards to his or her neighbor. Rocket
+cards cannot be passed on! Decide together if you will pass       The distress signal
+the cards to the left or the right. Everyone has to pass in       token remains active
+the same direction! Then the mission starts and follows the       until the current
+standard rules.                                                   mission is completed
+                                                                  and increases the
+The distress signal token will remain active until you            number of attempts for
+complete the current mission. No matter how many tries            this mission by one.
+you need, at the beginning of each attempt you can pass
+a card to the left or to the right to a crew member next to       ALL missions can be
+you. Even if you don't use it, the token remains active.          completed without the
+Only when you start a new mission do you turn the token           distress signal. Are you
+over again to inactive.                                           up to the challenge?
+
+The use of the distress signal token will be noted in your
+score. After each successful mission, you will enter in
+the logbook the number of attempts that you needed to
+complete the mission. If your distress signal field is circled,
+you must increase this number by one.
+
+Use this help at your own discretion. If you want your
+adventure to be a bit easier overall, you can use the help
+immediately on your first attempt. Each mission can also be
+completed without the use of the distress signal token!
+
+                                                                  13
+Task tokens make the       EXPLANATION OF SYM BOLS
+fulfillment of tasks       IN THE LOGBOOK
+more difficult through
+additional conditions.     Task tokens
+                           In many of the missions, task tokens are used. Each token is
+If the condition of        then assigned to a task card. These specify the conditions for
+a task token is not        the respective card, that must be observed while fulfilling
+fulfilled, you have lost.  the task.
+
+    14                     There are the following task tokens:
+
+                           The task must be                      The task must be
+                           fulfilled first.                      fulfilled last.
+
+                           The task must be                      The task must be
+                           fulfilled second.                     fulfilled anytime
+                                                                 before .
+                           The task must be
+                           fulfilled third.                      The task must be
+                                                                 fulfilled anytime
+                           The task must be                      after .
+                           fulfilled fourth.
+                                                                 The task must be
+                           The task must be                      fulfilled anytime
+                           fulfilled fifth.                      after .
+
+                                                                 The task must be
+                                                                 fulfilled anytime
+                                                                 after .
+
+                           Violating the task order condition will immediately cause
+                           the mission to fail.
+
+                           The task token does not mean that the task must be
+                           fulfilled in the first trick -- it only has to be fulfilled first out
+                           of all the pending tasks.
+            It can happen that several tasks with task tokens are won by                It is possible to win
+            a single crew member in the same trick. If these task tokens                multiple tasks with
+            are consecutive, for example, and ,or and                                   task tokens in the
+                                                                                        same trick if the tokens
+                 , both are considered to have been correctly fulfilled,                are consecutive.
+            regardless of which was played first.
+                                                                                        Set up:
+            The mission description shows how many task cards and
+                                                                                        1. Lay out the tokens
+            which task tokens are to be used. If you are playing with task              2. L ay out the tasks
+
+            tokens, first place the indicated task tokens face up in the                  from left to right
+pared   tfhoercenter                                                                      starting with the
+y just                o3f  the  table.  Then  draw  the  task  cards  and  place  them    first task token
+
+LIFT OFF!from left to right, starting with the first task token. No token
+
+w there ismay be assigned to more than one card.
+
+e ground,
+
+in -- it's            3                 The mission specifies to use three task
+                                        cards as well as task tokens one and two.
+ous tests
+                                        Initially the tokens have to be placed
+elms you                                next to each other.
+
+was your
+
+with just
+
+the on-
+
+an alarm,
+
+s become
+
+d will be One trick
+one card taken with
+                                        3                1
+                1 111111 1
+
+            1 1 11 11 1 1               3                1
+
+        Total
+        Then the task cards are drawn and are placed next to each
+        other, face up from left to right, starting with the first token.
+
+                                                                 15
+                                                                                                                                               The distribution of the task cards happens as previously
+                                                                                                                                               described. If you take a task card, you must also take any
+                                                                                                                                               corresponding task token.
+
+   a memorable day! You are now prepared for Number3and arrow tokens both specify an order. Arrow
+ completion of training however, is only just the
+of your adventure. 10-9-8-7-6-5-4-3-2-1-LIFT OFF!                                                                                              tokens  give  you  more  flexibility  in  fulfilling  your  tasks  than
+
+orce presses you into your seats -- now there is the number tokens:
+
+ck. With a deafening noise, you leave the ground,
+
+   the continent, and the planet.
+
+ring completion of the preparation phase. These                                                                                                        2
+
+g phases are focused on the recalibration of
+
+   modules, reorientation of the communicators
+
+bveaaaacbndhlcyeeedtdfoeluaelaulniunxanirglci.oahYrrobsyouitso',vynwes.teceiomgmhstpolleneststenhdeesnssupsmaecetesrsoiunuist--st.eYistot'ssu          3                  31
+
+g for this moment and yet joy overwhelms you                                                                                                                      In this case, first the blue 6 , then13
+                                                                                                                                                                  the green 3 , and finally the pink 1
+   You look back at the Earth, which was your                                                                                                                     must be won.
+
+os so far and already you can cover it with just                                                                                               This mission               31
+
+.                                                                                                                                                                 Here the blue 6 must be won before
+                                                                                                                                                                  the green 3 . Whether the pink 1 is
+                                                                                                                                               requires three     won before the blue 6 , between the
+                                                                                                                                                                  blue 6 and the green 3 , or is won
+   too soon! One of you is sick in bed. Aftertask cards and                                                                                                       after the green 3 , does not matter.
+
+as looked at his or her cards, your commandertask tokens
+"noerh"obwadh"e. Yoorusrhceofmeemlsa.nItdmeratyhoennldyebceidaensswwheroeidsoneMaunsdt ntwotow. in
+
+crruepwtlymetomrnberfrmomustynooutrwtihnoaungyhttsri,ckass. the on-
+sis module NAVI deafeningly sounds an alarm,
+
+your attention. A tiny piece of metal has become
+
+the electronic drive unit. A steady hand will be One trick
+rder to not damage the circuit boards. A one card taken with
+
+trick.                                                                                                                                         1 111111 1
+
+inor setback, your final training phase lies ahead:                                                                                            1 1 11 11 1 13
+
+hat to do in the case of restricted communication.                                                                                                                                       13
+
+do so, a dead zone will be simulated, these can
+
+ace for a number of reasons, so it's important tTootal
+em. Strengthen your mental connections to pass
+
+sts.                                                                                                                                           ? This mission
+
+                                                                                                                                               requires three
+
+                                                                                                                                               task cards and
+
+otal                                                                                                                                           the first two
+
+                                                                                                                                               arrow to5kens.
+
+        16
+Dead zone
+
+If your mission shows this symbol, your         ?                      The dead zone requires
+                                                                       the use of intuition.
+communications have been disrupted and                                 Communicate a card,
+you only have limited communication.                                   but do not place a
+                                                                       radio communication
+When you want to communicate, place                                    token on it.
+
+your card in front of you as you normally                              The disruption only
+                                                                       permits communication
+would. It must meet one of the three conditions (highest, single,      starting from the
+                                                                       specified trick.
+or lowest of the cards in your hand, in the color suit). You are not
+                                                                       In case of the
+however, allowed to place your radio communication token on            commander's decision,
+                                                                       the crew member
+the card. Instead flip it over to the red side and put it next to the  specified must fulfill
+                                                                       all tasks.
+card. The other crew members must now use their intuition to
+                                                                              17
+decide what information is being transmitted.
+
+Disruption
+If a mission shows this symbol, your communication is
+completely interrupted for a short period of time. The number
+will tell you during which trick communication can begin once
+again. Until then, no crew member can communicate about a
+card. Starting from the named trick, regular communication
+rules apply.
+
+In this case you cannot communicate
+
+during the first two tricks of the mission.     3
+Starting with the third trick -- in other
+
+words, directly before the third trick --
+
+you may start communicating again.
+
+Commander's decision
+
+If a mission displays this symbol, place the
+
+specified number of task cards face down in
+
+the middle of the table. After each player has
+
+reviewed their cards, your commander asks
+
+each crew member, whether they see
+
+themselves fit to take on all of the tasks. It  2
+
+may only be answered with "yes" or "no."
+
+Afterwards, your commander decides who
+In the case of the         actually receives the assignment and reveals the task cards.
+commander's                The mission is fulfilled when the crew member has completed all
+distribution, the tasks    the tasks. Your commander may not choose himself or herself.
+are distributed evenly
+among all the crew.        Commander's distribution
+                           If a mission displays this symbol, your
+When playing with          commander takes over the distribution
+five players, there is an  of the task cards. Prepare the mission
+additional rule from       as usual, but do not place any task
+mission 25 on, which is    cards open in the middle of the table.
+indicated by a golden      Your commander now uncovers a task
+frame around the           card and asks each crew member in
+mission number.            turn whether he or she wants to take
+                           on the task. It may only be answered with "yes" or "no."
+     25                    Afterwards, your commander decides who actually receives
+                           the assignment. He or she can also choose himself or herself.
+    18                     Repeat the process until all of the tasks are distributed. Note,
+                           however, that the tasks must be evenly distributed: At the
+                           end of the distribution, no one may have two tasks more
+                           than another crew member. If task tokens are in use, they
+                           must be distributed with the task cards; i.e., the first task
+                           token with the first task card, etc.
+
+                           PLAYI NG WITH FIVE PLAYE RS
+
+                           The basic sequence of the game does not change with five
+                           crew members. But you must be aware that with five players,
+                           the game presents a special challenge. Above all, in the later
+                           stages of your adventure, it brings an enormous increase
+                           in the degree of difficulty. But if you are playing with five
+                           players, eternal fame is certain.
+
+                           All rules apply as previously described, there is only one
+                           additional rule for missions with task cards added.
+                           These may be used from mission 25 onwards. As a
+                           reminder, all missions from 25 on, where this additional rule
+applies, have a golden border around their mission numbers.   Before the first trick
+After you have distributed the playing cards and the task     begins, a crew member
+cards and before the first trick starts, one crew member can  can handover his or her
+hand over his or her own task card to another crew member.    own task to another
+Decide together who hands over a task card and who should     crew member.
+take it on without revealing anything about your cards. You
+may also use this additional rule in missions 27 and 37.
+
+After handing over the task card, one crew member has one
+more task and one member has one less than before. The
+total number of tasks does not change, so you may not place
+a task back on the stack. You do not have to increase the
+number of attempts in the logbook by one when you use this
+additional rule.
+
+PLAYI NG WITH TWO PLAYE RS
+
+The Crew is best when played with a crew of three or more.
+Nevertheless, you can also explore the infinite vastness of
+outer space with the following mission structure:
+
+1. Put the four rocket card aside.
+2.With the rest of the 39 large playing cards, put seven
+
+   face down in a row, one next to another. Then put an
+   additional seven cards face up in a row on the first
+   seven covered cards.
+3.Shuffle the four rocket in with the remaining cards and
+   distribute these face down and evenly among both of the
+   crew members, so that each has 13 cards.
+4.Each crew member puts a radio communication token
+   with its green side up in front of himself or herself, as
+   well as a reminder card.
+5. Place the distress signal tokens face down.
+6.Shuffle the 36 small task cards and display them as
+   a face-down stack. Keep the task tokens handy.
+
+                                                        19
+When playing with two       When playing with two players, the commander role is also
+players, a third crew       carried out by the player with the four rocket. The tasks of
+member is simulated by      the commander remain unchanged (starts the task selection,
+JARVIS, by means of a       starts the first trick, and, if necessary, follows any special
+double row of 14 cards.     rules of the missions).
+
+Your commander              Additionally, your commander takes over the administration
+chooses the tasks for       of JARVIS. JARVIS is an artificial intelligence system that
+JARVIS and plays the        will accompany you on your adventure. It is represented
+cards for JARVIS. Both      by the double row of 14 cards that offer solutions to each
+of these things are         situation. Since JARVIS is an entity without a body, your
+decided without any         commander must make decisions for it. JARVIS is treated
+discussion.                 as a third crew member. However, during JARVIS' turn
+                            to play, your commander always decides which of the
+                            open cards should be played in the trick. The second crew
+                            member cannot thereby discuss it. Even when choosing the
+                            task cards, your commander will decide which tasks JARVIS
+                            will take. Treat JARVIS just like any other crew member and
+                            decide where JARVIS should "sit."
+
+                         3  35  52                           28  83                         3
+
+                         3  53  25                           82  38                         3
+
+Example of JARVIS' play area at the beginning of a mission.
+
+Only face-up cards from     Only the face-up cards from JARVIS can be played. when
+JARVIS can be played.       a face-up card has been played, the card below will be
+                            revealed, but only after the completion of the trick and
+                            not before.
+
+20
+TIPS AND VARIANTS                                                   CREATE YOUR
+                                                                   OWN MISSIONS
+· No communication is also communication. This means that
+  often, you can directly attempt to win your tasks, when no       In case 50 missions
+  one communicates.                                                are not enough
+                                                                   for you, you can
+· Most of the time it is easier to win a card that you             also design your
+  don't have in your hand. This is especially true for the         own missions with
+  low-value cards.                                                 the material.
+
+· With rockets, you can easily win cards of a color you do not     Simply combine any
+  have in hand.                                                    number of tasks and
+                                                                   task tokens with
+· Don't forget that the four rocket always wins a trick, as it is  any special rules of
+  the highest card in the game.                                    your choosing.
+
+· Being able to fulfill multiple tasks in one go is worth gold.    If you then think up a
+  Consider this when choosing your tasks.                          little story around
+                                                                   it, you have now
+· If you only have the eight and the nine of one color in your     created your own
+  hand, it is preferable to communicate the eight as the           personal adventure!
+  lowest card instead of the nine as the highest. So you can
+  make it clear that you also have the nine.
+
+Challenge for Three
+
+If you want a greater challenge for three players, try the
+following variant:
+
+· When setting up the game, return all green playing cards
+  and task cards as well as the rocket card with the value of
+  one to the box. Then start playing with the usual rules.
+
+· All special rules for the missions in the logbook apply.
+
+· Only missions 13 and 44 are affected by this change. You do
+  not have to win a trick with the rocket card with the value
+  one.
+
+                                                                   21
+    THE AUTHOR
+
+                             Thomas Sing, born in 1961, lives
+                             in the town of Constance on Lake
+                             Constance. Some years ago, the
+                             graduate economist bought a
+                             large corner store with his friends.
+                             This gave him enough time for his
+                             hobbies: mathematics, Miss Lupun,
+                             and of course, inventing games.
+
+    During his schooldays, Thomas Sing was a world record
+    holder in Ludo and thus made his way into the Guinness
+    Book of Records.
+
+    His first game for Kosmos, The Crew, has brought together the
+    popular worlds of trick-taking games and cooperative games in
+    a fascinating and entirely original way.
+
+    The author and publisher would like to thank all the play testers and rules
+    reviewers who were there in the beginning for the contributions that made
+    The Crew what it is today. This applies in particular to Marco Armbruster,
+    Wolfgang Schmidts, and the Kosmos editorial team.
+    A special thank you goes to Klaus, Ralf, and Volker, who were always ready
+    to explore the depths of the universe.
+
+22  Author: Thomas Sing                      © 2019 Thames & Kosmos, LLC,
+    Illustration: Marco Armbruster           Providence, RI, USA
+    Graphics: Sensit Communication           Thames & Kosmos® is a registered
+    Editing: Kilian Vosse, Wolfgang Lüdtke   trademark of Thames & Kosmos, LLC.
+    English edition editing: Ed Gartin, Tom  All rights reserved.
+    Wetzel, and Ted McGuire                  Distributed in North America by
+                                             Thames & Kosmos, LLC.
+    © 2019 Franckh-Kosmos                    Providence, RI 02903.
+    Verlags-GmbH & Co. KG                    Phone: 800-587-2872
+    Pfizer Street 5-7, 70184 Stuttgart       Web: thamesandkosmos.com
+    Telephone: +49 711 2191-0
+    Fax: +49 711 2191-199                    Distributed in United Kingdom by
+    info@kosmos.de                           Thames & Kosmos UK LP.
+    kosmos.de                                Cranbrook, Kent TN17 3HE.
+    Art. No.: 691868                         Phone: 01580 713000
+                                             Web: www.thamesandkosmos.co.uk
+    All rights reserved
+    Made in Poland                                                     691868-02-060320
+
