@@ -43,7 +43,19 @@ test('a full trick resolves to the highest follower and starts the next trick fr
 });
 
 test('owner winning their task card marks it fulfilled', () => {
-  let s = beginTricks(assignTask(setup(), 'p0', { suit: 'pink', value: 1 }));
+  // Give each player 3 cards so the mission doesn't end after the first trick
+  const g = createGame({ players: P, missionId: 1, seed: 1 });
+  let s: GameState = {
+    ...g,
+    commander: 'p0',
+    currentTrick: { leader: 'p0', plays: [] },
+    hands: {
+      p0: [{ suit: 'pink', value: 9 }, { suit: 'green', value: 1 }, { suit: 'blue', value: 1 }],
+      p1: [{ suit: 'pink', value: 5 }, { suit: 'green', value: 2 }, { suit: 'blue', value: 2 }],
+      p2: [{ suit: 'pink', value: 1 }, { suit: 'green', value: 3 }, { suit: 'blue', value: 3 }],
+    },
+  };
+  s = beginTricks(assignTask(s, 'p0', { suit: 'pink', value: 1 }));
   s = applyPlay(s, 'p0', { suit: 'pink', value: 9 });
   s = applyPlay(s, 'p1', { suit: 'pink', value: 5 });
   s = applyPlay(s, 'p2', { suit: 'pink', value: 1 });

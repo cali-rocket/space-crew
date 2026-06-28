@@ -1,6 +1,7 @@
 import { Card, sameCard } from './cards';
 import { legalMoves, trickWinner } from './trick';
 import { CompletedTrick, GameState, PlayerId } from './state';
+import { evaluateOutcome } from './outcome';
 
 export function currentPlayer(state: GameState): PlayerId {
   const leaderIdx = state.players.indexOf(state.currentTrick.leader);
@@ -45,7 +46,7 @@ export function applyPlay(state: GameState, player: PlayerId, card: Card): GameS
     return t;
   });
 
-  return {
+  const next: GameState = {
     ...state,
     hands,
     tasks,
@@ -53,4 +54,5 @@ export function applyPlay(state: GameState, player: PlayerId, card: Card): GameS
     trickHistory: [...state.trickHistory, completed],
     currentTrick: { leader: completed.winner, plays: [] },
   };
+  return evaluateOutcome(next);
 }
