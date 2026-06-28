@@ -30,3 +30,9 @@ export function trickWinner(trick: Trick): string {
     : trick.plays.filter((p) => p.card.suit === lead);
   return contenders.reduce((best, p) => (p.card.value > best.card.value ? p : best)).player;
 }
+
+export function winningCard(trick: { plays: Play[] }, winner: string): Card {
+  const play = trick.plays.find((p) => p.player === winner);
+  if (!play) throw new Error('winner has no card in this trick');
+  return play.card;
+}
