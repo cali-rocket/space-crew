@@ -98,7 +98,18 @@
 - 추가: 통신(트릭 직전 인터럽트·4정책 게이트)·조난(동시제출·전달)·순서토큰(absolute/relative/Ω)·배정(결정/분배/양도). **71 테스트 통과.**
 - Minor(후속): distress 재제출 가드·left 방향 테스트, handover from 검증, order.ts 타입가드.
 
-## 다음 할 일
-- [x] 계획 2(통신·조난·토큰·배정) 구현 + main 머지
-- [ ] 계획 3: 제약 카탈로그 + MissionDef + 50미션 데이터 (진행 중)
-- [ ] 이후: 서버 → 클라 → 캠페인
+## 계획 3 완료 (2026-06-29)
+- 브랜치 `plan-3-constraints-missions`에서 8태스크 서브에이전트 구동 → `main` 머지(merge `24948bb`).
+- 제약 프레임워크 + 9개 제약 타입(forbid-win-value, win-value-count, win-cards, player-trick-count, player-exact-tricks, balance, task-in-last-trick, trick-partition, pink-left-sweep), MissionDef/createMission, 역할 헬퍼, **50미션 데이터**.
+- **opus 더블엔트리 리뷰가 10개 Critical taskCount 오류를 잡아 수정**(로그북 PDF 시각 대조). **97 테스트 통과, typecheck 0.**
+- Minor(후속): order 토큰 ~15미션 누락, M48 마지막트릭 런타임 카드바인딩, trick-partition 부분지정 엣지, createMission이 roles 미주입(셋업에서 assignRole).
+
+## 현재 상태
+- `main`이 **순수 TS 게임 엔진 전체**(엔진 코어 + 통신/조난/토큰/배정 + 제약/50미션)를 포함. 97 테스트, typecheck 0.
+- 50미션 데이터까지 엔진에서 셋업·플레이·승패판정 가능(역할 바인딩·봇·서버·UI는 후속).
+
+## 다음 할 일 (후속 계획)
+- [ ] 계획 4: shared 프로토콜 + 서버(방·좌석·단일큐·봇 러너·뷰 직렬화) + BasicBot
+- [ ] 계획 5: 클라이언트(테이블/로비/브리핑/결과 UI)
+- [ ] 계획 6: 캠페인 영속화 + 인간 합류
+- [ ] 정리(Minor): order 토큰 보강, withHands 제거, 역할 바인딩 셋업 흐름
