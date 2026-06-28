@@ -53,6 +53,13 @@ export function evaluateConstraint(def: ConstraintDef, state: GameState): 'pendi
       const allRequiredDone = required.every((i) => i < state.trickHistory.length);
       return allRequiredDone ? 'satisfied' : 'pending';
     }
+    case 'balance': {
+      const wins: Record<string, number> = Object.fromEntries(state.players.map((p) => [p, 0]));
+      for (const t of state.trickHistory) wins[t.winner] = (wins[t.winner] ?? 0) + 1;
+      const vals = state.players.map((p) => wins[p] ?? 0);
+      if (Math.max(...vals) - Math.min(...vals) > def.maxDiff) return 'violated';
+      return state.trickHistory.length >= 13 ? 'satisfied' : 'pending';
+    }
     default:
       return 'pending'; // 후속 태스크에서 구현
   }
