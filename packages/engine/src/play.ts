@@ -2,6 +2,7 @@ import { Card, sameCard } from './cards';
 import { legalMoves, trickWinner } from './trick';
 import { CompletedTrick, GameState, PlayerId } from './state';
 import { evaluateOutcome } from './outcome';
+import { orderViolated } from './order';
 
 export function currentPlayer(state: GameState): PlayerId {
   const leaderIdx = state.players.indexOf(state.currentTrick.leader);
@@ -45,6 +46,10 @@ export function applyPlay(state: GameState, player: PlayerId, card: Card): GameS
     outcome = 'lost';
     return t;
   });
+
+  if (outcome === 'in-progress' && orderViolated(tasks)) {
+    outcome = 'lost';
+  }
 
   const next: GameState = {
     ...state,
