@@ -77,3 +77,12 @@ export function assignByDistribution(
     ],
   };
 }
+
+export function handoverTask(state: GameState, from: PlayerId, to: PlayerId, card: Card): GameState {
+  if (state.phase !== 'task-assignment') throw new Error('handover only before tricks begin');
+  if (!state.players.includes(to)) throw new Error(`unknown player ${to}`);
+  const idx = state.tasks.findIndex((t) => sameCard(t.card, card) && t.owner === from);
+  if (idx === -1) throw new Error('no such task owned by `from`');
+  const tasks = state.tasks.map((t, i) => (i === idx ? { ...t, owner: to } : t));
+  return { ...state, tasks };
+}
