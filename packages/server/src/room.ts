@@ -6,16 +6,18 @@ export interface Room {
   players: PlayerId[];
   isBot: Record<PlayerId, boolean>;
   connected: Record<PlayerId, boolean>;
+  missionId: number;
   match?: Match;
   started: boolean;
 }
 
-export function createRoom(code: string, hostId: PlayerId): Room {
+export function createRoom(code: string, hostId: PlayerId, missionId: number): Room {
   return {
     code,
     players: [hostId, 'bot-1', 'bot-2'],
     isBot: { [hostId]: false, 'bot-1': true, 'bot-2': true },
     connected: { [hostId]: true, 'bot-1': true, 'bot-2': true },
+    missionId,
     started: false,
   };
 }

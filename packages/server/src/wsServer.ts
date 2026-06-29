@@ -92,7 +92,7 @@ export function startServer(
           state.playerId = hostId;
           state.roomCode = code;
 
-          const room = createRoom(code, hostId);
+          const room = createRoom(code, hostId, msg.missionId);
           rooms.set(code, room);
 
           // Send room message to client
@@ -134,7 +134,7 @@ export function startServer(
             return;
           }
 
-          const mission = MISSIONS.find((m) => m.id === 1);
+          const mission = MISSIONS.find((m) => m.id === room.missionId);
           if (!mission) {
             ws.send(JSON.stringify({ t: 'nack', reason: 'mission not found' } as ServerToClient));
             return;
