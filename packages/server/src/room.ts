@@ -12,6 +12,7 @@ export interface Room {
   missionId: number;
   match?: Match;
   started: boolean;
+  outcomeRecorded?: boolean;
 }
 
 export function createRoom(code: string, hostId: PlayerId, missionId: number, roomIndex: number): Room {

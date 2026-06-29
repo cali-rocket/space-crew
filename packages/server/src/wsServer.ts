@@ -4,6 +4,7 @@ import { MISSIONS, PlayerId } from '@space-crew/engine';
 import type { ClientToServer, ServerToClient } from '@space-crew/shared';
 import { createRoom, joinRoom, startRoom, Room } from './room';
 import { applyHumanAction, viewFor } from './controller';
+import { recordResult, loadProgress, saveProgress, CrewProgress } from './campaign';
 
 interface ClientState {
   ws: WebSocket;
@@ -42,15 +43,24 @@ export interface ServerHandle {
 
 export function startServer(
   port: number,
-  opts?: { seed?: number },
+  opts?: { seed?: number; progressFile?: string },
 ): ServerHandle {
   const seed = opts?.seed ?? Math.floor(Math.random() * 1000000);
+  const progressFile = opts?.progressFile;
+  let progress: CrewProgress | undefined = progressFile ? loadProgress(progressFile) : undefined;
+
   const httpServer = createServer();
   const wss = new WebSocketServer({ server: httpServer });
 
   const rooms = new Map<string, Room>();
   const clients = new Map<WebSocket, ClientState>();
   let nextCodeIndex = 0;
+
+  function recordMissionOutcome(missionId: number, outcome: 'won' | 'lost') {
+    if (!progressFile || !progress) return;
+    progress = recordResult(progress, missionId, outcome);
+    saveProgress(progressFile, progress);
+  }
 
   function broadcastToRoom(code: string, msg: ServerToClient) {
     const room = rooms.get(code);
@@ -66,6 +76,14 @@ export function startServer(
   function broadcastViewToRoom(code: string) {
     const room = rooms.get(code);
     if (!room || !room.match) return;
+
+    // Check if mission has ended and record result (only once)
+    if (!room.outcomeRecorded && (room.match.game.outcome === 'won' || room.match.game.outcome === 'lost')) {
+      recordMissionOutcome(room.missionId, room.match.game.outcome);
+      room.outcomeRecorded = true;
+      // Update the room in the map
+      rooms.set(code, room);
+    }
 
     for (const playerId of room.players) {
       const view = viewFor(room.match, playerId as PlayerId);
