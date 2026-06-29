@@ -11,3 +11,19 @@ describe('Lobby mission selection', () => {
     expect(onCreate).toHaveBeenCalledWith(9);
   });
 });
+
+describe('Lobby join by code', () => {
+  test('typing a code and clicking 합류 calls onJoin with the code', () => {
+    const onJoin = vi.fn();
+    render(<Lobby onCreate={() => {}} onStart={() => {}} onJoin={onJoin} />);
+    fireEvent.change(screen.getByTestId('join-code-input'), { target: { value: 'XY99' } });
+    fireEvent.click(screen.getByText(/합류/));
+    expect(onJoin).toHaveBeenCalledWith('XY99');
+  });
+
+  test('합류 button is disabled when code input is empty', () => {
+    render(<Lobby onCreate={() => {}} onStart={() => {}} onJoin={() => {}} />);
+    const button = screen.getByText(/합류/).closest('button');
+    expect(button).toBeDisabled();
+  });
+});
