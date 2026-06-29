@@ -14,7 +14,7 @@ test('toPlayerView exposes only the viewer hand; others are counts; no rngSeed',
   expect(v.myHand).toEqual([C('pink', 9), C('blue', 2)]);
   const p1 = v.seats.find((s) => s.player === 'p1')!;
   expect(p1.handCount).toBe(1);
-  expect((p1 as Record<string, unknown>).hand).toBeUndefined();
+  expect((p1 as unknown as Record<string, unknown>).hand).toBeUndefined();
   expect(JSON.stringify(v)).not.toContain('rngSeed');
 });
 
