@@ -3,6 +3,9 @@ import { Match, setupMatch, advance } from './controller';
 
 export interface Room {
   code: string;
+  hostPlayerId: PlayerId;
+  /** Index captured at room creation; used to derive an independent per-room seed. */
+  roomIndex: number;
   players: PlayerId[];
   isBot: Record<PlayerId, boolean>;
   connected: Record<PlayerId, boolean>;
@@ -11,9 +14,11 @@ export interface Room {
   started: boolean;
 }
 
-export function createRoom(code: string, hostId: PlayerId, missionId: number): Room {
+export function createRoom(code: string, hostId: PlayerId, missionId: number, roomIndex: number): Room {
   return {
     code,
+    hostPlayerId: hostId,
+    roomIndex,
     players: [hostId, 'bot-1', 'bot-2'],
     isBot: { [hostId]: false, 'bot-1': true, 'bot-2': true },
     connected: { [hostId]: true, 'bot-1': true, 'bot-2': true },

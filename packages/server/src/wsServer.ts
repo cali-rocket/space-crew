@@ -87,12 +87,13 @@ export function startServer(
 
         if (msg.t === 'create') {
           // Create a new room
+          const roomIndex = nextCodeIndex;
           const code = generateCode(seed, nextCodeIndex++);
           const hostId = `host-${nextCodeIndex}` as PlayerId;
           state.playerId = hostId;
           state.roomCode = code;
 
-          const room = createRoom(code, hostId, msg.missionId);
+          const room = createRoom(code, hostId, msg.missionId, roomIndex);
           rooms.set(code, room);
 
           // Send room message to client
@@ -127,10 +128,15 @@ export function startServer(
             started: updatedRoom.started,
           });
         } else if (msg.t === 'start' && state.roomCode) {
-          // Start the game
+          // Start the game — host only
           const room = rooms.get(state.roomCode);
           if (!room || room.started) {
             ws.send(JSON.stringify({ t: 'nack', reason: 'cannot start' } as ServerToClient));
+            return;
+          }
+
+          if (state.playerId !== room.hostPlayerId) {
+            ws.send(JSON.stringify({ t: 'nack', reason: 'only the host can start' } as ServerToClient));
             return;
           }
 
@@ -140,7 +146,12 @@ export function startServer(
             return;
           }
 
-          const startedRoom = startRoom(room, mission, seed);
+          // Derive an independent seed for this room so concurrent rooms get
+          // different card deals even when the server seed is the same.
+          // roomIndex is fixed at room creation time, so the seed is deterministic
+          // regardless of subsequent join activity.
+          const roomSeed = room.roomIndex === 0 ? seed : (seed ^ (room.roomIndex * 2654435761)) >>> 0;
+          const startedRoom = startRoom(room, mission, roomSeed);
           rooms.set(state.roomCode, startedRoom);
 
           // Broadcast updated room and view to all
@@ -217,7 +228,27 @@ export function startServer(
     });
 
     ws.on('close', () => {
+      const closing = clients.get(ws);
       clients.delete(ws);
+
+      // Mark the player's seat as disconnected and GC the room if it is now empty
+      if (closing?.roomCode && closing.playerId) {
+        const room = rooms.get(closing.roomCode);
+        if (room) {
+          // Set connected=false for the departing player's seat
+          const updatedConnected = { ...room.connected, [closing.playerId]: false };
+          const updatedRoom: Room = { ...room, connected: updatedConnected };
+          rooms.set(closing.roomCode, updatedRoom);
+
+          // GC: remove room when no human player has an active connection
+          const anyHumanConnected = updatedRoom.players.some(
+            (p) => !updatedRoom.isBot[p as PlayerId] && updatedConnected[p as PlayerId],
+          );
+          if (!anyHumanConnected) {
+            rooms.delete(closing.roomCode);
+          }
+        }
+      }
     });
   });
 
