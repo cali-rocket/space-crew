@@ -9,7 +9,9 @@ export interface GameTableProps {
 }
 
 export function GameTable({ view, onPlayCard, onPickTask }: GameTableProps) {
-  const legalCards = view.legalMoves ?? legalMovesFromView(view);
+  // Only compute legal moves during trick-in-progress; task-assignment should not highlight
+  const shouldShowLegalMoves = view.phase === 'trick-in-progress';
+  const legalCards = shouldShowLegalMoves ? (view.legalMoves ?? legalMovesFromView(view)) : [];
   const legalSet = new Set(legalCards.map((c) => `${c.suit}-${c.value}`));
 
   const isLegal = (c: Card) => legalSet.has(`${c.suit}-${c.value}`);
@@ -42,23 +44,44 @@ export function GameTable({ view, onPlayCard, onPickTask }: GameTableProps) {
         </section>
       )}
 
+      {/* Task pool (during task-assignment) */}
+      {view.phase === 'task-assignment' && view.taskPool && (
+        <section style={{ marginBottom: '24px' }}>
+          <h2>Task Pool</h2>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {view.taskPool.map((card) => (
+              <span
+                key={`${card.suit}-${card.value}`}
+                data-testid={`pool-card-${card.suit}-${card.value}`}
+                onClick={() => onPickTask(card)}
+              >
+                <CardChip
+                  card={card}
+                  onClick={() => onPickTask(card)}
+                />
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* My hand */}
       <section style={{ marginBottom: '24px' }}>
         <h2>My Hand</h2>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
           {view.myHand.map((card) => {
             const legal = isLegal(card);
-            const handleClick = legal ? () => onPlayCard(card) : undefined;
+            const handleClick = legal && shouldShowLegalMoves ? () => onPlayCard(card) : undefined;
             return (
               <span
                 key={`${card.suit}-${card.value}`}
                 data-testid={`hand-card-${card.suit}-${card.value}`}
-                className={legal ? '' : 'dim'}
+                className={legal && shouldShowLegalMoves ? '' : 'dim'}
                 onClick={handleClick}
               >
                 <CardChip
                   card={card}
-                  dim={!legal}
+                  dim={!legal || !shouldShowLegalMoves}
                   onClick={handleClick}
                 />
               </span>
