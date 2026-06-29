@@ -55,10 +55,7 @@ export function GameTable({ view, onPlayCard, onPickTask }: GameTableProps) {
                 data-testid={`pool-card-${card.suit}-${card.value}`}
                 onClick={() => onPickTask(card)}
               >
-                <CardChip
-                  card={card}
-                  onClick={() => onPickTask(card)}
-                />
+                <CardChip card={card} />
               </span>
             ))}
           </div>

@@ -39,6 +39,7 @@ describe('GameTable task-pick', () => {
     const onPick = vi.fn();
     render(<GameTable view={base} onPlayCard={() => {}} onPickTask={onPick} />);
     fireEvent.click(screen.getByTestId('pool-card-pink-1'));
+    expect(onPick).toHaveBeenCalledTimes(1);
     expect(onPick).toHaveBeenCalledWith({ suit: 'pink', value: 1 });
   });
 
