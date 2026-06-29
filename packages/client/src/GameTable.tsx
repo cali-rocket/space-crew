@@ -97,7 +97,7 @@ export function GameTable({ view, onPlayCard, onPickTask, onCommunicate }: GameT
               <>
                 <p style={{ margin: '0 0 8px 0', fontSize: '14px' }}>Select a card to communicate:</p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {view.myHand.map((card) => (
+                  {view.myHand.filter((card) => card.suit !== 'rocket').map((card) => (
                     <span
                       key={`comm-${card.suit}-${card.value}`}
                       data-testid={`comm-card-${card.suit}-${card.value}`}
