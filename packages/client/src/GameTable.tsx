@@ -48,26 +48,20 @@ export function GameTable({ view, onPlayCard, onPickTask }: GameTableProps) {
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
           {view.myHand.map((card) => {
             const legal = isLegal(card);
+            const handleClick = legal ? () => onPlayCard(card) : undefined;
             return (
-              <div
+              <span
                 key={`${card.suit}-${card.value}`}
                 data-testid={`hand-card-${card.suit}-${card.value}`}
                 className={legal ? '' : 'dim'}
-                style={{
-                  padding: '8px 12px',
-                  border: legal ? '2px solid #2b7' : '1px solid #ccc',
-                  borderRadius: '4px',
-                  cursor: legal ? 'pointer' : 'default',
-                  opacity: legal ? 1 : 0.4,
-                  backgroundColor: getSuitColor(card.suit),
-                  color: '#fff',
-                  display: 'inline-block',
-                  userSelect: 'none',
-                }}
-                onClick={legal ? () => onPlayCard(card) : undefined}
+                onClick={handleClick}
               >
-                {card.suit} {card.value}
-              </div>
+                <CardChip
+                  card={card}
+                  dim={!legal}
+                  onClick={handleClick}
+                />
+              </span>
             );
           })}
         </div>
@@ -81,15 +75,4 @@ export function GameTable({ view, onPlayCard, onPickTask }: GameTableProps) {
       )}
     </div>
   );
-}
-
-function getSuitColor(suit: string): string {
-  const colors: Record<string, string> = {
-    pink: '#e91e63',
-    blue: '#2196f3',
-    green: '#4caf50',
-    yellow: '#ffc107',
-    rocket: '#673ab7',
-  };
-  return colors[suit] ?? '#999';
 }

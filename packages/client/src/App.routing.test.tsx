@@ -84,30 +84,21 @@ test('App sends create on onCreate button click', async () => {
   (globalThis as any).WebSocket = FakeWS;
   render(<App serverUrl="ws://localhost:0" />);
 
+  // Trigger onopen so the connection is considered open and sends go through
   FakeWS.last?.onopen?.();
 
-  // Show Lobby by sending room message
-  const roomMsg: ServerToClient = {
-    t: 'room',
-    code: 'ABC123',
-    seats: [],
-    started: false,
-  };
-  FakeWS.last?.onmessage?.({ data: JSON.stringify(roomMsg) });
-
+  // No room message sent — Lobby renders "방 만들기" by default when room is undefined
+  // Wait for the button to be present, then click it unconditionally
   await waitFor(() => {
-    const createBtn = screen.queryByText(/방 만들기/i);
-    if (createBtn) {
-      fireEvent.click(createBtn);
-    }
+    expect(screen.getByText(/방 만들기/i)).toBeInTheDocument();
   });
 
-  // Check if create message was sent
-  const lastSent = FakeWS.last?.sent[FakeWS.last.sent.length - 1];
-  if (lastSent) {
-    const parsed = JSON.parse(lastSent);
-    expect(parsed.t).toBe('create');
-  }
+  fireEvent.click(screen.getByText(/방 만들기/i));
+
+  // Assert unconditionally that the create message was sent
+  const lastSent = FakeWS.last!.sent[FakeWS.last!.sent.length - 1] as string;
+  expect(lastSent).toBeDefined();
+  expect(JSON.parse(lastSent)).toEqual({ t: 'create', missionId: 1 });
 });
 
 test('App sends start on onStart button click', async () => {
@@ -136,12 +127,10 @@ test('App sends start on onStart button click', async () => {
   const startBtn = screen.getByText(/시작/i);
   fireEvent.click(startBtn);
 
-  // Check if start message was sent
-  const lastSent = FakeWS.last?.sent[FakeWS.last.sent.length - 1];
-  if (lastSent) {
-    const parsed = JSON.parse(lastSent);
-    expect(parsed.t).toBe('start');
-  }
+  // Assert unconditionally that the start message was sent
+  const lastSent = FakeWS.last!.sent[FakeWS.last!.sent.length - 1] as string;
+  expect(lastSent).toBeDefined();
+  expect(JSON.parse(lastSent)).toEqual({ t: 'start' });
 });
 
 test('App shows error message on nack', async () => {

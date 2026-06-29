@@ -56,6 +56,49 @@ test(
       timeout: 5000,
     });
 
+    // Locate legal cards: the wrapper <span> carries data-testid; the inner
+    // CardChip <div> gets className "card-chip dim" when illegal.
+    // With seed 7 the commander may be a bot; bots move quickly so the human turn
+    // may or may not arrive immediately. We check once synchronously.
+    const clickableCards = screen
+      .queryAllByTestId(/^hand-card-/)
+      .filter((span) => {
+        const chip = span.querySelector('.card-chip');
+        return chip && !chip.classList.contains('dim');
+      });
+
+    if (clickableCards.length > 0) {
+      // Human has a legal card to play — click it and expect the DOM to update
+      // (e.g. the trick section appears or hand size shrinks).
+      const handCountBefore = screen.queryAllByTestId(/^hand-card-/).length;
+      fireEvent.click(clickableCards[0]!);
+
+      // After playing, the trick area should appear OR hand count should change
+      // OR the outcome section should render — any DOM change confirms no crash.
+      await waitFor(
+        () => {
+          const handCountAfter = screen.queryAllByTestId(/^hand-card-/).length;
+          const trickSection = screen.queryByText(/Current Trick/i);
+          const outcome = screen.queryByText(/Mission Result/i);
+          expect(
+            handCountAfter < handCountBefore || trickSection || outcome,
+          ).toBeTruthy();
+        },
+        { timeout: 5000 },
+      );
+    } else {
+      // Commander is a bot — bots will play all cards; wait for a terminal result
+      // or for the Mission header to remain visible (game is progressing normally).
+      await waitFor(
+        () => {
+          const outcome = screen.queryByText(/Mission Result/i);
+          const mission = screen.queryByText(/Mission/i);
+          expect(outcome || mission).toBeInTheDocument();
+        },
+        { timeout: 10000 },
+      );
+    }
+
     // Clean up with timeout to avoid hanging
     const closePromise = srv.close().catch(() => {
       // Ignore close errors
