@@ -122,5 +122,6 @@ export function applyHumanAction(
 }
 
 export function viewFor(match: Match, player: PlayerId) {
-  return toPlayerView(match.game, player, { isBot: match.isBot });
+  const v = toPlayerView(match.game, player, { isBot: match.isBot });
+  return match.game.phase === 'task-assignment' ? { ...v, taskPool: [...match.taskPool] } : v;
 }
