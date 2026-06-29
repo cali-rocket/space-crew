@@ -7,7 +7,7 @@ export interface SeatView { player: PlayerId; isBot: boolean; connected: boolean
 export interface PlayerView {
   me: PlayerId; myHand: Card[]; seats: SeatView[]; missionId: number; attemptNumber: number; phase: Phase;
   currentTrick: { leader: PlayerId; plays: { player: PlayerId; card: Card }[]; leadSuit?: Suit };
-  objectives: ConstraintDef[]; communicationPolicy: CommunicationPolicy; distressActive: boolean; outcome: GameState['outcome']; legalMoves?: Card[];
+  objectives: ConstraintDef[]; communicationPolicy: CommunicationPolicy; distressActive: boolean; outcome: GameState['outcome']; legalMoves?: Card[]; taskPool?: Card[];
 }
 
 export function toPlayerView(state: GameState, viewer: PlayerId, opts?: { isBot?: Record<PlayerId, boolean>; connected?: Record<PlayerId, boolean> }): PlayerView {

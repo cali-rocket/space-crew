@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { CardChip } from './Card';
 import { legalMovesFromView } from '@space-crew/engine';
 import type { Card, PlayerView } from '@space-crew/engine';
@@ -6,13 +7,32 @@ export interface GameTableProps {
   view: PlayerView;
   onPlayCard(c: Card): void;
   onPickTask(c: Card): void;
+  onCommunicate?(c: Card): void;
 }
 
-export function GameTable({ view, onPlayCard, onPickTask }: GameTableProps) {
-  const legalCards = view.legalMoves ?? legalMovesFromView(view);
+export function GameTable({ view, onPlayCard, onPickTask, onCommunicate }: GameTableProps) {
+  const [selectingCommunicate, setSelectingCommunicate] = useState(false);
+
+  // Only compute legal moves during trick-in-progress; task-assignment should not highlight
+  const shouldShowLegalMoves = view.phase === 'trick-in-progress';
+  const legalCards = shouldShowLegalMoves ? (view.legalMoves ?? legalMovesFromView(view)) : [];
   const legalSet = new Set(legalCards.map((c) => `${c.suit}-${c.value}`));
 
   const isLegal = (c: Card) => legalSet.has(`${c.suit}-${c.value}`);
+
+  // Check if it's the player's turn to communicate (before trick starts)
+  const isMyTurnToLead = view.currentTrick.leader === view.me;
+  const canCommunicate =
+    view.phase === 'trick-in-progress' &&
+    isMyTurnToLead &&
+    view.currentTrick.plays.length === 0;
+
+  const handleCommunicateClick = (card: Card) => {
+    if (onCommunicate) {
+      onCommunicate(card);
+      setSelectingCommunicate(false);
+    }
+  };
 
   return (
     <div style={{ padding: '16px', fontFamily: 'system-ui' }}>
@@ -42,23 +62,77 @@ export function GameTable({ view, onPlayCard, onPickTask }: GameTableProps) {
         </section>
       )}
 
+      {/* Task pool (during task-assignment) */}
+      {view.phase === 'task-assignment' && view.taskPool && (
+        <section style={{ marginBottom: '24px' }}>
+          <h2>Task Pool</h2>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {view.taskPool.map((card) => (
+              <span
+                key={`${card.suit}-${card.value}`}
+                data-testid={`pool-card-${card.suit}-${card.value}`}
+                onClick={() => onPickTask(card)}
+              >
+                <CardChip card={card} />
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* My hand */}
       <section style={{ marginBottom: '24px' }}>
-        <h2>My Hand</h2>
+        <h2>My Hand {canCommunicate && <span style={{ fontSize: '0.8em', color: '#2b7' }}>(can communicate)</span>}</h2>
+
+        {canCommunicate && (
+          <div style={{ marginBottom: '16px', padding: '8px', backgroundColor: '#e8f5e9', borderRadius: '4px' }}>
+            {!selectingCommunicate ? (
+              <button
+                onClick={() => setSelectingCommunicate(true)}
+                style={{ padding: '8px 16px', fontSize: '14px', cursor: 'pointer', backgroundColor: '#4caf50', color: 'white', border: 'none', borderRadius: '4px' }}
+              >
+                Communicate
+              </button>
+            ) : (
+              <>
+                <p style={{ margin: '0 0 8px 0', fontSize: '14px' }}>Select a card to communicate:</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {view.myHand.filter((card) => card.suit !== 'rocket').map((card) => (
+                    <span
+                      key={`comm-${card.suit}-${card.value}`}
+                      data-testid={`comm-card-${card.suit}-${card.value}`}
+                      onClick={() => handleCommunicateClick(card)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <CardChip card={card} />
+                    </span>
+                  ))}
+                </div>
+                <button
+                  onClick={() => setSelectingCommunicate(false)}
+                  style={{ marginTop: '8px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
           {view.myHand.map((card) => {
             const legal = isLegal(card);
-            const handleClick = legal ? () => onPlayCard(card) : undefined;
+            const handleClick = legal && shouldShowLegalMoves ? () => onPlayCard(card) : undefined;
             return (
               <span
                 key={`${card.suit}-${card.value}`}
                 data-testid={`hand-card-${card.suit}-${card.value}`}
-                className={legal ? '' : 'dim'}
+                className={legal && shouldShowLegalMoves ? '' : 'dim'}
                 onClick={handleClick}
               >
                 <CardChip
                   card={card}
-                  dim={!legal}
+                  dim={!legal || !shouldShowLegalMoves}
                   onClick={handleClick}
                 />
               </span>

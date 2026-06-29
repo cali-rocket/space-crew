@@ -5,3 +5,10 @@ coverage/
 *.log
 .DS_Store
 .superpowers/
+
+# emitted TS output that must never land in src (all source is .ts/.tsx)
+packages/*/src/**/*.js
+packages/*/src/**/*.jsx
+packages/*/src/**/*.d.ts
+packages/*/src/**/*.js.map
+packages/*/src/**/*.d.ts.map
