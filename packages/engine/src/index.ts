@@ -15,3 +15,5 @@ export * from './constraints';
 export * from './mission';
 export * from './missions.data';
 export * from './view';
+export * from './taskdeck';
+export * from './bot';
