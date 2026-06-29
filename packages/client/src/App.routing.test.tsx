@@ -95,7 +95,7 @@ test('App sends create on onCreate button click', async () => {
 
   fireEvent.click(screen.getByText(/방 만들기/i));
 
-  // Assert unconditionally that the create message was sent
+  // Assert unconditionally that the create message was sent with default mission id (1)
   const lastSent = FakeWS.last!.sent[FakeWS.last!.sent.length - 1] as string;
   expect(lastSent).toBeDefined();
   expect(JSON.parse(lastSent)).toEqual({ t: 'create', missionId: 1 });

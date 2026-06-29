@@ -45,8 +45,8 @@ export function App({ serverUrl }: AppProps) {
     };
   }, [serverUrl]);
 
-  const handleCreate = () => {
-    conn?.send({ t: 'create', missionId: 1 });
+  const handleCreate = (missionId: number) => {
+    conn?.send({ t: 'create', missionId });
   };
 
   const handleStart = () => {

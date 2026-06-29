@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 export interface RoomState {
   code: string;
   seats: { player: string; isBot: boolean; connected: boolean }[];
@@ -6,17 +8,41 @@ export interface RoomState {
 
 export interface LobbyProps {
   room?: RoomState;
-  onCreate(): void;
+  onCreate(missionId: number): void;
   onStart(): void;
 }
 
 export function Lobby({ room, onCreate, onStart }: LobbyProps) {
+  const [selectedMission, setSelectedMission] = useState(1);
+
+  const handleCreate = () => {
+    onCreate(selectedMission);
+  };
+
   if (!room) {
     return (
       <div style={{ padding: '24px', fontFamily: 'system-ui' }}>
         <h1>Space Crew Lobby</h1>
         <p>No room yet. Create one to start playing!</p>
-        <button onClick={onCreate} style={{ padding: '8px 16px', fontSize: '16px', cursor: 'pointer' }}>
+        <div style={{ marginBottom: '16px' }}>
+          <label htmlFor="mission-select" style={{ marginRight: '8px' }}>
+            Mission:
+          </label>
+          <select
+            id="mission-select"
+            data-testid="mission-select"
+            value={selectedMission}
+            onChange={(e) => setSelectedMission(Number(e.target.value))}
+            style={{ padding: '8px', fontSize: '16px' }}
+          >
+            {Array.from({ length: 50 }, (_, i) => i + 1).map((mission) => (
+              <option key={mission} value={mission}>
+                {mission}
+              </option>
+            ))}
+          </select>
+        </div>
+        <button onClick={handleCreate} style={{ padding: '8px 16px', fontSize: '16px', cursor: 'pointer' }}>
           방 만들기
         </button>
       </div>
