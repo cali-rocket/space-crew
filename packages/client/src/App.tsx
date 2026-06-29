@@ -3,6 +3,7 @@ import { connect, type Conn } from './conn';
 import { Lobby, type RoomState } from './Lobby';
 import { GameTable } from './GameTable';
 import type { PlayerView, Card } from '@space-crew/engine';
+import { commClassification } from '@space-crew/engine';
 import type { ServerToClient } from '@space-crew/shared';
 
 interface AppProps {
@@ -61,6 +62,17 @@ export function App({ serverUrl }: AppProps) {
     conn?.send({ t: 'pick-task', card });
   };
 
+  const handleJoin = (code: string) => {
+    conn?.send({ t: 'join', code });
+  };
+
+  const handleCommunicate = (card: Card) => {
+    // Calculate the token automatically using commClassification
+    if (!view) return;
+    const token = commClassification(view.myHand, card);
+    conn?.send({ t: 'communicate', card, token });
+  };
+
   // Routing logic
   // If we have a view and the game is in progress, show the game table
   const showGameTable = view && (view.phase === 'trick-in-progress' || view.phase === 'task-assignment' || view.outcome !== 'in-progress');
@@ -74,9 +86,9 @@ export function App({ serverUrl }: AppProps) {
       )}
 
       {showGameTable && view ? (
-        <GameTable view={view} onPlayCard={handlePlayCard} onPickTask={handlePickTask} />
+        <GameTable view={view} onPlayCard={handlePlayCard} onPickTask={handlePickTask} onCommunicate={handleCommunicate} />
       ) : (
-        <Lobby room={room} onCreate={handleCreate} onStart={handleStart} />
+        <Lobby room={room} onCreate={handleCreate} onStart={handleStart} onJoin={handleJoin} />
       )}
     </div>
   );
