@@ -1,1 +1,0 @@
-{"root":["./src/app.routing.test.tsx","./src/app.test.tsx","./src/app.tsx","./src/card.tsx","./src/gametable.pick.test.tsx","./src/gametable.test.tsx","./src/gametable.tsx","./src/lobby.mission.test.tsx","./src/lobby.tsx","./src/conn.test.ts","./src/conn.ts","./src/integration.test.tsx","./src/main.tsx","./src/setuptests.ts"],"version":"5.9.3"}
