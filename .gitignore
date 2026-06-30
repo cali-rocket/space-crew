@@ -15,3 +15,6 @@ packages/*/src/**/*.d.ts.map
 
 # TS incremental build cache
 *.tsbuildinfo
+
+# deployable build artifact (produced by `npm run build:deploy`)
+deploy/
