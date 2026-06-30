@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "client",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--workspace", "@space-crew/client", "--", "--port", "5181", "--strictPort"],
+      "port": 5181
+    }
+  ]
+}
