@@ -126,10 +126,25 @@
 - 현재 **149 테스트, typecheck 0(4패키지), 빌드 OK, src 방출파일 0, 70커밋.**
 - 모두 원본 일러스트 복제 없이 디자인 언어를 CSS/SVG로 직접 재현.
 
-## 남은 룰 UI 백로그 (비차단)
-- **조난 결정 + 카드전달 UI** (이웃에게 1장 비밀 전달, 방향 선택).
-- **커맨더 분배**(M20 한 명이 전부 가져가기) 흐름.
-- **M50 협상**(첫4/마지막/중간 역할 배정) 흐름.
-- M5 뉘앙스(아픈 승무원 'sick' + 태스크 3 혼합) 정합.
-- 커맨더 good/bad·yes/no 응답 표시(룰상 플레이버).
-- 미션 order 토큰 ~15미션 보강, started/full 방 join nack, 방코드 충돌, 재접속·인터넷 배포.
+## 계획 8 — 남은 룰 UI (2026-06-30, 손수 재구현)
+- 워크플로우가 typecheck를 오보고(통합 상태에 server 타입오류 21 + 테스트 11 실패: 테스트/소스 불일치)해 **plan-8 브랜치를 플랜문서 커밋으로 리셋 후 전부 손수 재구현**, 각 단계 `tsc --noEmit` 확인.
+- **커맨더 결정 일반화**: `PlayerView.decision`을 `{kind:'role'|'all-tasks'|'m50-roles'}` 유니온으로. 컨트롤러 `pendingDecision`이 미션별 결정 종류를 산출 → 봇 자동/사람 패널.
+- **조난 카드전달**(commit-then-reveal): 봇은 최저 비로켓 자동 제출, 사람은 멈춰서 제출. `distressDone` 가드.
+- **M50 역할 협상**(서로 다른 플레이어 검증) + 커맨더 all-tasks 분배 흐름. 풀스택 배선(engine→controller→protocol→ws→client).
+- 결과 **166 테스트, typecheck 0**. merge(c969871).
+
+## 계획 9 — 인터넷 배포 (2026-06-30)
+- **단일 Node 프로세스**가 클라 정적파일 + ws 게임을 **한 포트**로 서빙하도록 통합.
+  - `wsServer.startServer(port, {clientDir, host})` — `clientDir` 주면 같은 http 서버에 정적 핸들러 부착(`createServer(staticHandler)` + `WebSocketServer({server})`). MIME 맵, SPA fallback(미존재 경로→index.html), **경로 traversal 가드**(분리자 경계 검사 — sibling-prefix 우회 차단, `%2e%2e` 인코딩 포함 테스트).
+  - `prod.ts` — 프로덕션 엔트리(`PORT` env, `0.0.0.0`, 번들 옆 `public/` 서빙).
+  - 클라 `main.tsx` — 프로덕션은 같은 오리진 ws(`wss://`는 https일 때 자동), 개발은 `:8787`.
+- **빌드 파이프라인**: `scripts/build-deploy.mjs` — vite로 클라 빌드 → esbuild로 `prod.ts`를 `deploy/server.mjs`(esm, node20, createRequire 배너)로 번들 → `deploy/public`에 클라 복사. 루트 스크립트 `build:deploy`/`start`/`typecheck`, esbuild devDep, `deploy/` gitignore.
+- **`Dockerfile`**(node:20-slim 멀티스테이지) + `.dockerignore` + **`DEPLOY.md`**(Docker/Render·Railway/Fly 절차, env, 주의: 인메모리 단일 인스턴스).
+- **검증**: 빌드 산출물(server.mjs 183KB + public)을 실제 구동해 **e2e PASS** — `GET /`가 실제 클라 index(#root+번들 스크립트), 157KB JS 에셋 200, SPA fallback 200, ws create→room·start→view 정상. 정적 스모크 테스트(서빙+SPA+traversal) 추가.
+- 현재 **167 테스트, typecheck 0(4패키지), 빌드 OK, src 방출파일 0.**
+
+## 남은 백로그 (비차단)
+- 커맨더 분배 균등분할(M24/32/36/43), 미션 order 토큰 ~15미션 보강, M48 마지막트릭 런타임 카드 바인딩.
+- M5 뉘앙스(아픈 승무원 'sick' + 태스크 3 혼합), 커맨더 good/bad·yes/no 응답 표시(플레이버).
+- started/full 방 join nack, 방코드 충돌(극단), 재접속 정교화.
+- 영속화/재시작 복원(현재 룸은 인메모리), 다중 인스턴스 확장(룸 레지스트리 외부화).

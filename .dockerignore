@@ -1,0 +1,10 @@
+node_modules
+**/node_modules
+deploy
+packages/*/dist
+.git
+.superpowers
+docs
+**/*.test.ts
+**/*.test.tsx
+*.tsbuildinfo

@@ -3,6 +3,12 @@
   "private": true,
   "workspaces": ["packages/*"],
   "scripts": {
-    "test": "npm test --workspaces --if-present"
+    "test": "npm test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "build:deploy": "node scripts/build-deploy.mjs",
+    "start": "node deploy/server.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.23.0"
   }
 }

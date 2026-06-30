@@ -1,5 +1,35 @@
 import { WebSocketServer, WebSocket } from 'ws';
-import { createServer, Server as HttpServer } from 'http';
+import { createServer, Server as HttpServer, IncomingMessage, ServerResponse } from 'http';
+import { readFileSync, existsSync, statSync } from 'fs';
+import { join, normalize, extname, sep } from 'path';
+
+const MIME: Record<string, string> = {
+  '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css',
+  '.json': 'application/json', '.svg': 'image/svg+xml', '.ico': 'image/x-icon',
+  '.png': 'image/png', '.woff2': 'font/woff2', '.map': 'application/json',
+};
+
+/** Serve the built client (SPA: unknown paths fall back to index.html). */
+function staticHandler(clientDir: string) {
+  const root = normalize(clientDir);
+  const rootPrefix = root.endsWith(sep) ? root : root + sep;
+  return (req: IncomingMessage, res: ServerResponse) => {
+    try {
+      let p = decodeURIComponent((req.url ?? '/').split('?')[0] ?? '/');
+      if (p === '/' || p === '') p = '/index.html';
+      let file = normalize(join(root, p));
+      // Must stay within root: equal to root or under it (separator boundary,
+      // so a sibling dir sharing the prefix — e.g. public-secret — can't escape).
+      if (file !== root && !file.startsWith(rootPrefix)) { res.statusCode = 403; res.end('forbidden'); return; }
+      if (!existsSync(file) || !statSync(file).isFile()) file = join(root, 'index.html');
+      res.setHeader('Content-Type', MIME[extname(file)] ?? 'application/octet-stream');
+      res.end(readFileSync(file));
+    } catch {
+      res.statusCode = 500;
+      res.end('server error');
+    }
+  };
+}
 import { MISSIONS, PlayerId } from '@space-crew/engine';
 import type { ClientToServer, ServerToClient } from '@space-crew/shared';
 import { createRoom, joinRoom, startRoom, Room } from './room';
@@ -43,13 +73,13 @@ export interface ServerHandle {
 
 export function startServer(
   port: number,
-  opts?: { seed?: number; progressFile?: string },
+  opts?: { seed?: number; progressFile?: string; clientDir?: string; host?: string },
 ): ServerHandle {
   const seed = opts?.seed ?? Math.floor(Math.random() * 1000000);
   const progressFile = opts?.progressFile;
   let progress: CrewProgress | undefined = progressFile ? loadProgress(progressFile) : undefined;
 
-  const httpServer = createServer();
+  const httpServer = opts?.clientDir ? createServer(staticHandler(opts.clientDir)) : createServer();
   const wss = new WebSocketServer({ server: httpServer });
 
   const rooms = new Map<string, Room>();
@@ -331,7 +361,7 @@ export function startServer(
     },
   };
 
-  httpServer.listen(port, '127.0.0.1', () => {
+  httpServer.listen(port, opts?.host ?? '127.0.0.1', () => {
     const addr = httpServer.address();
     if (addr && typeof addr === 'object') {
       handle.port = addr.port;
