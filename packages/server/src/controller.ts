@@ -14,7 +14,22 @@ import {
   legalMovesFromView,
   BasicBot,
   CommToken,
+  assignRole,
+  derivePink9Holder,
 } from '@space-crew/engine';
+
+/** Bind roles that are derivable without player interaction (commander, pink-9 holder). */
+function bindDerivableRoles(def: MissionDef, game: GameState): GameState {
+  let g = game;
+  const cons = def.constraints ?? [];
+  if (cons.some((c) => 'role' in c && c.role === 'commander')) {
+    g = assignRole(g, 'commander', g.commander);
+  }
+  if (cons.some((c) => c.kind === 'pink-left-sweep')) {
+    g = assignRole(g, 'pink9holder', derivePink9Holder(g));
+  }
+  return g;
+}
 
 export interface Match {
   game: GameState;
@@ -26,7 +41,7 @@ export interface Match {
 }
 
 export function setupMatch(def: MissionDef, players: PlayerId[], isBot: Record<PlayerId, boolean>, seed: number): Match {
-  const game = createMission(def, { players, seed });
+  const game = bindDerivableRoles(def, createMission(def, { players, seed }));
   const taskPool = drawTaskCards(seed, def.taskCount);
   return { game, isBot, taskPool, seed, step: 0, taskCount: def.taskCount };
 }
