@@ -8,6 +8,8 @@ export interface PlayerView {
   me: PlayerId; myHand: Card[]; seats: SeatView[]; missionId: number; attemptNumber: number; phase: Phase;
   currentTrick: { leader: PlayerId; plays: { player: PlayerId; card: Card }[]; leadSuit?: Suit };
   objectives: ConstraintDef[]; communicationPolicy: CommunicationPolicy; distressActive: boolean; outcome: GameState['outcome']; legalMoves?: Card[]; taskPool?: Card[];
+  /** Commander-decision prompt (only present for the commander while a role target must be chosen). */
+  decision?: { role: string; candidates: PlayerId[] };
 }
 
 export function toPlayerView(state: GameState, viewer: PlayerId, opts?: { isBot?: Record<PlayerId, boolean>; connected?: Record<PlayerId, boolean> }): PlayerView {

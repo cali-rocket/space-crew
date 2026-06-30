@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { CardChip } from './Card';
 import { legalMovesFromView } from '@space-crew/engine';
-import type { Card, PlayerView, ConstraintDef, CommState, OrderToken, CommunicationPolicy } from '@space-crew/engine';
+import type { Card, PlayerView, ConstraintDef, CommState, OrderToken, CommunicationPolicy, PlayerId } from '@space-crew/engine';
 
 export interface GameTableProps {
   view: PlayerView;
   onPlayCard(c: Card): void;
   onPickTask(c: Card): void;
   onCommunicate?(c: Card): void;
+  onCommanderAssign?(assignee: PlayerId): void;
 }
 
 function objectiveText(c: ConstraintDef): string {
@@ -49,7 +50,7 @@ function CommView({ comm }: { comm: CommState }) {
   );
 }
 
-export function GameTable({ view, onPlayCard, onPickTask, onCommunicate }: GameTableProps) {
+export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onCommanderAssign }: GameTableProps) {
   const [selecting, setSelecting] = useState(false);
 
   const showLegal = view.phase === 'trick-in-progress';
@@ -73,6 +74,20 @@ export function GameTable({ view, onPlayCard, onPickTask, onCommunicate }: GameT
       ))}
       {commText && <div className="sc-banner warn">{commText}</div>}
       {view.distressActive && <div className="sc-banner warn">조난신호 활성</div>}
+
+      {/* commander decision */}
+      {view.decision && onCommanderAssign && (
+        <div className="sc-panel">
+          <div className="sc-h">커맨더 결정 · '{view.decision.role}' 담당자를 지목하세요</div>
+          <div className="sc-row">
+            {view.decision.candidates.map((p) => (
+              <button key={p} className="sc-btn primary" data-testid={`decide-${p}`} onClick={() => onCommanderAssign(p)}>
+                {p === view.me ? '나' : p}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* seats */}
       <div className="sc-panel">

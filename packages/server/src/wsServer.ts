@@ -239,6 +239,22 @@ export function startServer(
           } catch (err) {
             ws.send(JSON.stringify({ t: 'nack', reason: String(err) } as ServerToClient));
           }
+        } else if (msg.t === 'commander-assign' && state.roomCode && state.playerId) {
+          const room = rooms.get(state.roomCode);
+          if (!room || !room.match) {
+            ws.send(JSON.stringify({ t: 'nack', reason: 'no active game' } as ServerToClient));
+            return;
+          }
+          try {
+            const updatedMatch = applyHumanAction(room.match, state.playerId as PlayerId, {
+              type: 'commander-assign',
+              assignee: msg.assignee,
+            });
+            rooms.set(state.roomCode, { ...room, match: updatedMatch });
+            broadcastViewToRoom(state.roomCode);
+          } catch (err) {
+            ws.send(JSON.stringify({ t: 'nack', reason: String(err) } as ServerToClient));
+          }
         }
       } catch (err) {
         ws.send(JSON.stringify({ t: 'nack', reason: 'invalid message' } as ServerToClient));

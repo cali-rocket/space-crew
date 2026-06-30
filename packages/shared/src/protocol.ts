@@ -6,6 +6,7 @@ export type ClientToServer =
   | { t: 'pick-task'; card: Card }
   | { t: 'play-card'; card: Card }
   | { t: 'communicate'; card: Card; token: CommToken | null }
+  | { t: 'commander-assign'; assignee: PlayerId }
   | { t: 'start' };
 
 export type ServerToClient =

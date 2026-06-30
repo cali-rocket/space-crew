@@ -38,12 +38,23 @@ export interface Match {
   seed: number;
   step: number;
   taskCount: number;
+  def: MissionDef;
+}
+
+/** The unbound player-target role (e.g. 'sick'/'chosen') the commander must decide, or null. */
+function pendingRoleDecision(match: Match): string | null {
+  for (const c of match.def.constraints ?? []) {
+    if ((c.kind === 'player-trick-count' || c.kind === 'player-exact-tricks') && c.role !== 'commander') {
+      if (match.game.roles[c.role] === undefined) return c.role;
+    }
+  }
+  return null;
 }
 
 export function setupMatch(def: MissionDef, players: PlayerId[], isBot: Record<PlayerId, boolean>, seed: number): Match {
   const game = bindDerivableRoles(def, createMission(def, { players, seed }));
   const taskPool = drawTaskCards(seed, def.taskCount);
-  return { game, isBot, taskPool, seed, step: 0, taskCount: def.taskCount };
+  return { game, isBot, taskPool, seed, step: 0, taskCount: def.taskCount, def };
 }
 
 export function advance(match: Match): Match {
@@ -64,7 +75,17 @@ export function advance(match: Match): Match {
 
     // Task assignment phase
     if (game.phase === 'task-assignment') {
-      if (taskPool.length === 0) {
+      // Commander-decision: bind an unbound player-target role before tasks/tricks.
+      const role = pendingRoleDecision(m);
+      if (role !== null) {
+        if (isBot[game.commander]) {
+          const candidate = game.players.find((p) => p !== game.commander)!;
+          m.game = assignRole(game, role, candidate);
+          m.step++;
+        } else {
+          return m; // human commander must decide
+        }
+      } else if (taskPool.length === 0) {
         // Pool is empty, move to tricks
         m.game = beginTricks(m.game);
         m.step++;
@@ -119,7 +140,8 @@ export function applyHumanAction(
   action:
     | { type: 'pick-task'; card: Card }
     | { type: 'play-card'; card: Card }
-    | { type: 'communicate'; card: Card; token: CommToken | null },
+    | { type: 'communicate'; card: Card; token: CommToken | null }
+    | { type: 'commander-assign'; assignee: PlayerId },
 ): Match {
   let m = { ...match };
 
@@ -130,6 +152,13 @@ export function applyHumanAction(
     m.game = applyPlay(m.game, player, action.card);
   } else if (action.type === 'communicate') {
     m.game = communicate(m.game, player, action.card, action.token);
+  } else if (action.type === 'commander-assign') {
+    if (player !== m.game.commander) throw new Error('only the commander may decide');
+    const role = pendingRoleDecision(m);
+    if (role === null) throw new Error('no pending commander decision');
+    if (action.assignee === m.game.commander) throw new Error('commander cannot choose self');
+    if (!m.game.players.includes(action.assignee)) throw new Error('unknown assignee');
+    m.game = assignRole(m.game, role, action.assignee);
   }
 
   m.step++;
@@ -137,6 +166,13 @@ export function applyHumanAction(
 }
 
 export function viewFor(match: Match, player: PlayerId) {
-  const v = toPlayerView(match.game, player, { isBot: match.isBot });
-  return match.game.phase === 'task-assignment' ? { ...v, taskPool: [...match.taskPool] } : v;
+  let v = toPlayerView(match.game, player, { isBot: match.isBot });
+  if (match.game.phase === 'task-assignment') {
+    v = { ...v, taskPool: [...match.taskPool] };
+    const role = pendingRoleDecision(match);
+    if (role !== null && player === match.game.commander) {
+      v = { ...v, decision: { role, candidates: match.game.players.filter((p) => p !== match.game.commander) } };
+    }
+  }
+  return v;
 }
