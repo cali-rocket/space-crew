@@ -5,6 +5,7 @@ import { GameTable } from './GameTable';
 import type { PlayerView, Card } from '@space-crew/engine';
 import { commClassification } from '@space-crew/engine';
 import type { ServerToClient } from '@space-crew/shared';
+import './theme.css';
 
 interface AppProps {
   serverUrl: string;
@@ -78,10 +79,10 @@ export function App({ serverUrl }: AppProps) {
   const showGameTable = view && (view.phase === 'trick-in-progress' || view.phase === 'task-assignment' || view.outcome !== 'in-progress');
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
+    <div className="sc-app">
       {error && (
-        <div style={{ padding: '16px', backgroundColor: '#ffcccc', color: '#cc0000', marginBottom: '16px' }}>
-          Error: {error}
+        <div className="sc-main" style={{ paddingBottom: 0 }}>
+          <div className="sc-banner obj"><span className="sc-dot" />{error}</div>
         </div>
       )}
 

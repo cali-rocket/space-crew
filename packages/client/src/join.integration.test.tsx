@@ -75,7 +75,7 @@ describe('join integration', () => {
       // Wait for host lobby to appear
       await waitFor(
         () => {
-          expect(screen.getByText(/Space Crew Lobby/i)).toBeInTheDocument();
+          expect(screen.getByText(/SPACE CREW/i)).toBeInTheDocument();
         },
         { timeout: 3000 }
       );
@@ -91,11 +91,9 @@ describe('join integration', () => {
       let roomCode = '';
       await waitFor(
         () => {
-          const codeText = screen.getByText(/Room Code:/);
-          expect(codeText).toBeInTheDocument();
-          // Extract code from "Room Code: <strong>{code}</strong>"
-          const codeElement = codeText.parentElement?.querySelector('strong');
-          roomCode = codeElement?.textContent || '';
+          const codeEl = screen.getByTestId('room-code');
+          expect(codeEl).toBeInTheDocument();
+          roomCode = codeEl.textContent || '';
           expect(roomCode).toBeTruthy();
         },
         { timeout: 5000 }
@@ -125,7 +123,7 @@ describe('join integration', () => {
       await waitFor(
         () => {
           expect(screen.getByText(/Mission 5/)).toBeInTheDocument();
-          expect(screen.getByText(/Seats/)).toBeInTheDocument();
+          expect(screen.getByText(/크루/)).toBeInTheDocument();
         },
         { timeout: 5000 }
       );

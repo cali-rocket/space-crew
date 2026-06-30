@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { CardChip } from './Card';
 import { legalMovesFromView } from '@space-crew/engine';
-import type { Card, PlayerView } from '@space-crew/engine';
+import type { Card, PlayerView, ConstraintDef, CommState, OrderToken, CommunicationPolicy } from '@space-crew/engine';
 
 export interface GameTableProps {
   view: PlayerView;
@@ -10,142 +10,174 @@ export interface GameTableProps {
   onCommunicate?(c: Card): void;
 }
 
+function objectiveText(c: ConstraintDef): string {
+  switch (c.kind) {
+    case 'forbid-win-value': return `${c.value} 값 카드로는 트릭을 따면 안 됨`;
+    case 'win-value-count': return `${c.value} 값 카드로 트릭 ${c.count}회 따기`;
+    case 'win-cards': return `지정 카드를 ${c.ordered ? '순서대로 ' : ''}각각 따기`;
+    case 'player-trick-count': return `지정 플레이어가 정확히 ${c.count}트릭${c.rocketAllowed ? '' : ' (로켓 제외)'}`;
+    case 'player-exact-tricks': return `지정 플레이어가 ${c.tricks === 'first-last' ? '첫·마지막' : '지정'} 트릭${c.exclusive ? '만' : ''}${c.rocketAllowed ? '' : ' (로켓 제외)'}`;
+    case 'balance': return `누구도 남보다 ${c.maxDiff + 1}트릭 이상 더 따면 안 됨`;
+    case 'task-in-last-trick': return `지정 태스크를 마지막 트릭에 달성`;
+    case 'trick-partition': return `트릭 분할: 첫4 / 마지막 / 중간`;
+    case 'pink-left-sweep': return `분홍9 보유자 왼쪽 사람이 분홍 카드를 전부 획득`;
+    default: return '특수 목표';
+  }
+}
+
+function commPolicyText(p: CommunicationPolicy): string | null {
+  if (p === 'normal') return null;
+  if (p === 'dead-zone') return '통신 제한 · dead zone (직관)';
+  if ('noCommUntilTrick' in p) return `통신 차단 · ${p.noCommUntilTrick}트릭부터 가능`;
+  if ('oneMemberNoComm' in p) return '통신 제한 · 지정 1인 통신 금지';
+  return null;
+}
+
+function OrderBadge({ order }: { order: OrderToken }) {
+  const label = order.kind === 'absolute' ? String(order.position) : order.kind === 'last' ? 'Ω' : '→'.repeat(order.chevrons);
+  return <span className="sc-tok" title="순서 토큰">{label}</span>;
+}
+
+function CommView({ comm }: { comm: CommState }) {
+  const pos = comm.token === 'highest' ? 'top' : comm.token === 'lowest' ? 'bot' : 'mid';
+  const red = comm.token === null;
+  return (
+    <span className="sc-comm" title={comm.token ?? '직관(dead zone)'}>
+      <CardChip card={comm.card} small />
+      <span className={`tok ${pos} ${red ? 'red' : ''}`} />
+    </span>
+  );
+}
+
 export function GameTable({ view, onPlayCard, onPickTask, onCommunicate }: GameTableProps) {
-  const [selectingCommunicate, setSelectingCommunicate] = useState(false);
+  const [selecting, setSelecting] = useState(false);
 
-  // Only compute legal moves during trick-in-progress; task-assignment should not highlight
-  const shouldShowLegalMoves = view.phase === 'trick-in-progress';
-  const legalCards = shouldShowLegalMoves ? (view.legalMoves ?? legalMovesFromView(view)) : [];
+  const showLegal = view.phase === 'trick-in-progress';
+  const legalCards = showLegal ? (view.legalMoves ?? legalMovesFromView(view)) : [];
   const legalSet = new Set(legalCards.map((c) => `${c.suit}-${c.value}`));
-
   const isLegal = (c: Card) => legalSet.has(`${c.suit}-${c.value}`);
 
-  // Check if it's the player's turn to communicate (before trick starts)
-  const isMyTurnToLead = view.currentTrick.leader === view.me;
-  const canCommunicate =
-    view.phase === 'trick-in-progress' &&
-    isMyTurnToLead &&
-    view.currentTrick.plays.length === 0;
-
-  const handleCommunicateClick = (card: Card) => {
-    if (onCommunicate) {
-      onCommunicate(card);
-      setSelectingCommunicate(false);
-    }
-  };
+  const canCommunicate = view.phase === 'trick-in-progress' && view.currentTrick.leader === view.me && view.currentTrick.plays.length === 0;
+  const commText = commPolicyText(view.communicationPolicy);
 
   return (
-    <div style={{ padding: '16px', fontFamily: 'system-ui' }}>
-      {/* Mission header */}
-      <h1>Mission {view.missionId}</h1>
+    <div className="sc-main">
+      <div className="sc-title">
+        <h1>SPACE CREW</h1>
+        <span className="sub">Mission {view.missionId} · 시도 {view.attemptNumber}</span>
+      </div>
 
-      {/* Seats info */}
-      <section style={{ marginBottom: '24px' }}>
-        <h2>Seats</h2>
-        {view.seats.map((seat) => (
-          <div key={seat.player} style={{ padding: '8px', border: '1px solid #ddd', marginBottom: '8px' }}>
-            <strong>{seat.player}</strong> {seat.isBot ? '(Bot)' : ''} — Tricks: {seat.tricksWon}, Hand: {seat.handCount}
-            {seat.isCommander && <span style={{ marginLeft: '8px', color: '#2b7' }}>Commander</span>}
-          </div>
-        ))}
-      </section>
+      {/* objectives / communication banners */}
+      {view.objectives.map((o, i) => (
+        <div key={i} className="sc-banner obj"><span className="sc-dot" />{objectiveText(o)}</div>
+      ))}
+      {commText && <div className="sc-banner warn">{commText}</div>}
+      {view.distressActive && <div className="sc-banner warn">조난신호 활성</div>}
 
-      {/* Current trick */}
-      {view.currentTrick.plays.length > 0 && (
-        <section style={{ marginBottom: '24px' }}>
-          <h2>Current Trick (led by {view.currentTrick.leader})</h2>
-          {view.currentTrick.plays.map((play) => (
-            <div key={play.player} style={{ padding: '8px', marginBottom: '4px' }}>
-              {play.player}: <span style={{ fontWeight: 'bold' }}>{play.card.suit} {play.card.value}</span>
+      {/* seats */}
+      <div className="sc-panel">
+        <div className="sc-h">크루</div>
+        <div className="sc-seats">
+          {view.seats.map((seat) => (
+            <div key={seat.player} className={`sc-seat ${seat.player === view.me ? 'me' : ''}`}>
+              <div className="sc-seat-top">
+                <span className="sc-ava">{seat.isBot ? '🤖' : (seat.player === view.me ? '🧑‍🚀' : '🙂')}</span>
+                <span>
+                  <div className="sc-name">{seat.player === view.me ? '나' : seat.player}</div>
+                  <div className="sc-meta">획득 트릭 {seat.tricksWon}{seat.isBot ? '' : ''}</div>
+                </span>
+                {seat.isCommander && <span className="sc-badge cmd">★ 커맨더</span>}
+                {!seat.isCommander && seat.isBot && <span className="sc-badge bot">봇</span>}
+                {!seat.connected && <span className="sc-badge off">끊김</span>}
+              </div>
+              <div className="sc-tasks">
+                {seat.tasks.length === 0 && <span className="sc-meta">태스크 없음</span>}
+                {seat.tasks.map((t) => (
+                  <span key={`${t.card.suit}-${t.card.value}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}>
+                    <CardChip card={t.card} small check={t.fulfilled} dim={t.fulfilled} />
+                    {t.order && <OrderBadge order={t.order} />}
+                  </span>
+                ))}
+                {seat.communication.map((c, i) => <CommView key={`c${i}`} comm={c} />)}
+              </div>
             </div>
           ))}
-        </section>
-      )}
+        </div>
+      </div>
 
-      {/* Task pool (during task-assignment) */}
+      {/* current trick */}
+      <div className="sc-panel">
+        <div className="sc-h">현재 트릭 {view.currentTrick.leadSuit ? `· 리드 ${view.currentTrick.leadSuit}` : ''}</div>
+        <div className="sc-trick">
+          {view.currentTrick.plays.length === 0 && <div className="sc-turn">아직 카드가 없습니다</div>}
+          {view.currentTrick.plays.map((p) => (
+            <div key={p.player} className="slot">
+              <CardChip card={p.card} />
+              <div className="who">{p.player === view.me ? '나' : p.player}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* task pool */}
       {view.phase === 'task-assignment' && view.taskPool && (
-        <section style={{ marginBottom: '24px' }}>
-          <h2>Task Pool</h2>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+        <div className="sc-panel">
+          <div className="sc-h">태스크 풀 · 가져갈 카드를 고르세요</div>
+          <div className="sc-pool">
             {view.taskPool.map((card) => (
-              <span
-                key={`${card.suit}-${card.value}`}
-                data-testid={`pool-card-${card.suit}-${card.value}`}
-                onClick={() => onPickTask(card)}
-              >
-                <CardChip card={card} />
+              <span key={`${card.suit}-${card.value}`} data-testid={`pool-card-${card.suit}-${card.value}`} onClick={() => onPickTask(card)}>
+                <CardChip card={card} pick />
               </span>
             ))}
           </div>
-        </section>
+        </div>
       )}
 
-      {/* My hand */}
-      <section style={{ marginBottom: '24px' }}>
-        <h2>My Hand {canCommunicate && <span style={{ fontSize: '0.8em', color: '#2b7' }}>(can communicate)</span>}</h2>
+      {/* my hand */}
+      <div className="sc-panel">
+        <div className="sc-h">내 손패 {showLegal && <span style={{ color: '#a78bfa' }}>· 낼 수 있는 카드만 선명</span>}</div>
 
-        {canCommunicate && (
-          <div style={{ marginBottom: '16px', padding: '8px', backgroundColor: '#e8f5e9', borderRadius: '4px' }}>
-            {!selectingCommunicate ? (
-              <button
-                onClick={() => setSelectingCommunicate(true)}
-                style={{ padding: '8px 16px', fontSize: '14px', cursor: 'pointer', backgroundColor: '#4caf50', color: 'white', border: 'none', borderRadius: '4px' }}
-              >
-                Communicate
-              </button>
+        {canCommunicate && onCommunicate && (
+          <div className="sc-row" style={{ marginBottom: 12 }}>
+            {!selecting ? (
+              <button className="sc-btn" aria-label="Communicate" onClick={() => setSelecting(true)}>📡 통신하기</button>
             ) : (
-              <>
-                <p style={{ margin: '0 0 8px 0', fontSize: '14px' }}>Select a card to communicate:</p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {view.myHand.filter((card) => card.suit !== 'rocket').map((card) => (
-                    <span
-                      key={`comm-${card.suit}-${card.value}`}
-                      data-testid={`comm-card-${card.suit}-${card.value}`}
-                      onClick={() => handleCommunicateClick(card)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <CardChip card={card} />
+              <div>
+                <div className="sc-meta" style={{ marginBottom: 6 }}>통신할 카드 선택 (로켓 제외):</div>
+                <div className="sc-row">
+                  {view.myHand.filter((c) => c.suit !== 'rocket').map((card) => (
+                    <span key={`comm-${card.suit}-${card.value}`} data-testid={`comm-card-${card.suit}-${card.value}`}
+                      onClick={() => { onCommunicate(card); setSelecting(false); }}>
+                      <CardChip card={card} pick small />
                     </span>
                   ))}
+                  <button className="sc-btn ghost" aria-label="Cancel" onClick={() => setSelecting(false)}>취소</button>
                 </div>
-                <button
-                  onClick={() => setSelectingCommunicate(false)}
-                  style={{ marginTop: '8px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}
-                >
-                  Cancel
-                </button>
-              </>
+              </div>
             )}
           </div>
         )}
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+        <div className="sc-hand">
           {view.myHand.map((card) => {
-            const legal = isLegal(card);
-            const handleClick = legal && shouldShowLegalMoves ? () => onPlayCard(card) : undefined;
+            const legal = isLegal(card) && showLegal;
             return (
-              <span
-                key={`${card.suit}-${card.value}`}
-                data-testid={`hand-card-${card.suit}-${card.value}`}
-                className={legal && shouldShowLegalMoves ? '' : 'dim'}
-                onClick={handleClick}
-              >
-                <CardChip
-                  card={card}
-                  dim={!legal || !shouldShowLegalMoves}
-                  onClick={handleClick}
-                />
+              <span key={`${card.suit}-${card.value}`} data-testid={`hand-card-${card.suit}-${card.value}`}
+                className={legal ? '' : 'dim'} onClick={legal ? () => onPlayCard(card) : undefined}>
+                <CardChip card={card} legal={legal} dim={!legal} onClick={legal ? () => onPlayCard(card) : undefined} />
               </span>
             );
           })}
         </div>
-      </section>
+      </div>
 
-      {/* Outcome if finished */}
       {view.outcome !== 'in-progress' && (
-        <section style={{ padding: '16px', backgroundColor: '#f5f5f5', borderRadius: '4px' }}>
-          <h2>Mission Result: {view.outcome}</h2>
-        </section>
+        <div className="sc-panel">
+          <div className={`sc-result ${view.outcome}`}>
+            <h2>{view.outcome === 'won' ? '🎉 미션 성공' : '💥 미션 실패'}</h2>
+            <div className="sc-meta">Mission {view.missionId} · 시도 {view.attemptNumber}</div>
+          </div>
+        </div>
       )}
     </div>
   );
