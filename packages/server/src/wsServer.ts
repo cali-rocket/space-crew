@@ -111,7 +111,7 @@ export function startServer(
           state.playerId = hostId;
           state.roomCode = code;
 
-          const room = createRoom(code, hostId, msg.missionId, roomIndex);
+          const room = createRoom(code, hostId, msg.missionId, roomIndex, msg.distress);
           rooms.set(code, room);
 
           // Send room message to client
@@ -249,6 +249,38 @@ export function startServer(
             const updatedMatch = applyHumanAction(room.match, state.playerId as PlayerId, {
               type: 'commander-assign',
               assignee: msg.assignee,
+            });
+            rooms.set(state.roomCode, { ...room, match: updatedMatch });
+            broadcastViewToRoom(state.roomCode);
+          } catch (err) {
+            ws.send(JSON.stringify({ t: 'nack', reason: String(err) } as ServerToClient));
+          }
+        } else if (msg.t === 'commander-assign-roles' && state.roomCode && state.playerId) {
+          const room = rooms.get(state.roomCode);
+          if (!room || !room.match) {
+            ws.send(JSON.stringify({ t: 'nack', reason: 'no active game' } as ServerToClient));
+            return;
+          }
+          try {
+            const updatedMatch = applyHumanAction(room.match, state.playerId as PlayerId, {
+              type: 'commander-assign-roles',
+              assignments: msg.assignments,
+            });
+            rooms.set(state.roomCode, { ...room, match: updatedMatch });
+            broadcastViewToRoom(state.roomCode);
+          } catch (err) {
+            ws.send(JSON.stringify({ t: 'nack', reason: String(err) } as ServerToClient));
+          }
+        } else if (msg.t === 'submit-distress' && state.roomCode && state.playerId) {
+          const room = rooms.get(state.roomCode);
+          if (!room || !room.match) {
+            ws.send(JSON.stringify({ t: 'nack', reason: 'no active game' } as ServerToClient));
+            return;
+          }
+          try {
+            const updatedMatch = applyHumanAction(room.match, state.playerId as PlayerId, {
+              type: 'submit-distress',
+              card: msg.card,
             });
             rooms.set(state.roomCode, { ...room, match: updatedMatch });
             broadcastViewToRoom(state.roomCode);

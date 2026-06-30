@@ -53,7 +53,7 @@ export const MISSIONS: MissionDef[] = [
     logbookPage: 3,
     taskCount: 3,
     constraints: [{ kind: 'player-trick-count', role: 'sick', count: 0, rocketAllowed: true }],
-    assignment: 'commander-decision',
+    assignment: 'open-pick',
   },
   {
     id: 6,

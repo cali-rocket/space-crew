@@ -25,7 +25,8 @@ test('human commander gets a decision prompt; commander-assign binds the role', 
   expect(match.game.phase).toBe('task-assignment');
   expect(match.game.roles['chosen']).toBeUndefined();
   const v = viewFor(match, cmd);
-  expect(v.decision?.role).toBe('chosen');
+  expect(v.decision?.kind).toBe('role');
+  expect(v.decision && 'role' in v.decision ? v.decision.role : undefined).toBe('chosen');
   expect(v.decision?.candidates).not.toContain(cmd);
   const assignee = v.decision!.candidates[0]!;
   const m2 = applyHumanAction(match, cmd, { type: 'commander-assign', assignee });

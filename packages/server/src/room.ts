@@ -10,12 +10,19 @@ export interface Room {
   isBot: Record<PlayerId, boolean>;
   connected: Record<PlayerId, boolean>;
   missionId: number;
+  distress?: { active: boolean; direction: 'left' | 'right' };
   match?: Match;
   started: boolean;
   outcomeRecorded?: boolean;
 }
 
-export function createRoom(code: string, hostId: PlayerId, missionId: number, roomIndex: number): Room {
+export function createRoom(
+  code: string,
+  hostId: PlayerId,
+  missionId: number,
+  roomIndex: number,
+  distress?: { active: boolean; direction: 'left' | 'right' },
+): Room {
   return {
     code,
     hostPlayerId: hostId,
@@ -24,6 +31,7 @@ export function createRoom(code: string, hostId: PlayerId, missionId: number, ro
     isBot: { [hostId]: false, 'bot-1': true, 'bot-2': true },
     connected: { [hostId]: true, 'bot-1': true, 'bot-2': true },
     missionId,
+    distress,
     started: false,
   };
 }
@@ -46,7 +54,7 @@ export function joinRoom(room: Room, playerId: PlayerId): Room {
 }
 
 export function startRoom(room: Room, def: MissionDef, seed: number): Room {
-  const match = advance(setupMatch(def, room.players as PlayerId[], room.isBot, seed));
+  const match = advance(setupMatch(def, room.players as PlayerId[], room.isBot, seed, room.distress));
   return {
     ...room,
     match,

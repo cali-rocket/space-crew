@@ -8,7 +8,7 @@ export interface RoomState {
 
 export interface LobbyProps {
   room?: RoomState;
-  onCreate(missionId: number): void;
+  onCreate(missionId: number, distress?: { active: boolean; direction: 'left' | 'right' }): void;
   onStart(): void;
   onJoin?(code: string): void;
 }
@@ -16,6 +16,10 @@ export interface LobbyProps {
 export function Lobby({ room, onCreate, onStart, onJoin }: LobbyProps) {
   const [selectedMission, setSelectedMission] = useState(1);
   const [joinCode, setJoinCode] = useState('');
+  const [distress, setDistress] = useState(false);
+  const [direction, setDirection] = useState<'left' | 'right'>('right');
+
+  const create = () => (distress ? onCreate(selectedMission, { active: true, direction }) : onCreate(selectedMission));
 
   if (!room) {
     return (
@@ -35,7 +39,19 @@ export function Lobby({ room, onCreate, onStart, onJoin }: LobbyProps) {
                 <option key={m} value={m}>미션 {m}</option>
               ))}
             </select>
-            <button className="sc-btn primary" onClick={() => onCreate(selectedMission)}>🚀 방 만들기</button>
+            <button className="sc-btn primary" onClick={create}>🚀 방 만들기</button>
+          </div>
+          <div className="sc-row" style={{ marginTop: 10 }}>
+            <label className="sc-meta" style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <input type="checkbox" data-testid="distress-toggle" checked={distress} onChange={(e) => setDistress(e.target.checked)} />
+              조난신호 사용 (난이도 ↓)
+            </label>
+            {distress && (
+              <select className="sc-select" data-testid="distress-direction" value={direction} onChange={(e) => setDirection(e.target.value as 'left' | 'right')}>
+                <option value="right">오른쪽으로 전달</option>
+                <option value="left">왼쪽으로 전달</option>
+              </select>
+            )}
           </div>
           <div className="sc-meta" style={{ marginTop: 8 }}>나 + 봇 2명으로 출발합니다. 친구는 방 코드로 들어올 수 있어요.</div>
         </div>

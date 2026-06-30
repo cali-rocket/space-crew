@@ -12,3 +12,6 @@ packages/*/src/**/*.jsx
 packages/*/src/**/*.d.ts
 packages/*/src/**/*.js.map
 packages/*/src/**/*.d.ts.map
+
+# TS incremental build cache
+*.tsbuildinfo

@@ -9,6 +9,8 @@ export interface GameTableProps {
   onPickTask(c: Card): void;
   onCommunicate?(c: Card): void;
   onCommanderAssign?(assignee: PlayerId): void;
+  onCommanderAssignRoles?(assignments: Record<string, PlayerId>): void;
+  onSubmitDistress?(c: Card): void;
 }
 
 function objectiveText(c: ConstraintDef): string {
@@ -50,8 +52,9 @@ function CommView({ comm }: { comm: CommState }) {
   );
 }
 
-export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onCommanderAssign }: GameTableProps) {
+export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onCommanderAssign, onCommanderAssignRoles, onSubmitDistress }: GameTableProps) {
   const [selecting, setSelecting] = useState(false);
+  const [roleSel, setRoleSel] = useState<Record<string, string>>({});
 
   const showLegal = view.phase === 'trick-in-progress';
   const legalCards = showLegal ? (view.legalMoves ?? legalMovesFromView(view)) : [];
@@ -60,6 +63,8 @@ export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onComma
 
   const canCommunicate = view.phase === 'trick-in-progress' && view.currentTrick.leader === view.me && view.currentTrick.plays.length === 0;
   const commText = commPolicyText(view.communicationPolicy);
+  const dec = view.decision;
+  const m50Ready = dec?.kind === 'm50-roles' && dec.roles.every((r) => roleSel[r]) && new Set(dec.roles.map((r) => roleSel[r])).size === dec.roles.length;
 
   return (
     <div className="sc-main">
@@ -75,16 +80,55 @@ export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onComma
       {commText && <div className="sc-banner warn">{commText}</div>}
       {view.distressActive && <div className="sc-banner warn">조난신호 활성</div>}
 
-      {/* commander decision */}
-      {view.decision && onCommanderAssign && (
+      {/* distress card submission */}
+      {view.distressPass?.mustSubmit && onSubmitDistress && (
         <div className="sc-panel">
-          <div className="sc-h">커맨더 결정 · '{view.decision.role}' 담당자를 지목하세요</div>
+          <div className="sc-h">조난신호 · 이웃에게 넘길 카드를 고르세요 (로켓 제외)</div>
+          <div className="sc-pool">
+            {view.myHand.filter((c) => c.suit !== 'rocket').map((card) => (
+              <span key={`d-${card.suit}-${card.value}`} data-testid={`distress-card-${card.suit}-${card.value}`} onClick={() => onSubmitDistress(card)}>
+                <CardChip card={card} pick />
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* commander decision */}
+      {dec && (dec.kind === 'role' || dec.kind === 'all-tasks') && onCommanderAssign && (
+        <div className="sc-panel">
+          <div className="sc-h">
+            {dec.kind === 'all-tasks'
+              ? '커맨더 결정 · 한 명에게 모든 태스크를 맡기세요'
+              : `커맨더 결정 · '${dec.role}' 담당자를 지목하세요 (${dec.role === 'sick' ? 'good/bad' : 'yes/no'} 질문)`}
+          </div>
           <div className="sc-row">
-            {view.decision.candidates.map((p) => (
+            {dec.candidates.map((p) => (
               <button key={p} className="sc-btn primary" data-testid={`decide-${p}`} onClick={() => onCommanderAssign(p)}>
                 {p === view.me ? '나' : p}
               </button>
             ))}
+          </div>
+        </div>
+      )}
+      {dec && dec.kind === 'm50-roles' && onCommanderAssignRoles && (
+        <div className="sc-panel">
+          <div className="sc-h">커맨더 결정 · 트릭 역할을 배정하세요</div>
+          <div className="sc-row">
+            {dec.roles.map((r) => (
+              <label key={r} className="sc-meta" style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                {r}
+                <select className="sc-select" data-testid={`role-select-${r}`} value={roleSel[r] ?? ''}
+                  onChange={(e) => setRoleSel({ ...roleSel, [r]: e.target.value })}>
+                  <option value="">—</option>
+                  {dec.candidates.map((p) => (<option key={p} value={p}>{p === view.me ? '나' : p}</option>))}
+                </select>
+              </label>
+            ))}
+            <button className="sc-btn primary" data-testid="assign-roles" disabled={!m50Ready}
+              onClick={() => onCommanderAssignRoles(roleSel as Record<string, PlayerId>)}>
+              확정
+            </button>
           </div>
         </div>
       )}
