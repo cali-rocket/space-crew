@@ -8,8 +8,13 @@ export interface PlayerView {
   me: PlayerId; myHand: Card[]; seats: SeatView[]; missionId: number; attemptNumber: number; phase: Phase;
   currentTrick: { leader: PlayerId; plays: { player: PlayerId; card: Card }[]; leadSuit?: Suit };
   objectives: ConstraintDef[]; communicationPolicy: CommunicationPolicy; distressActive: boolean; outcome: GameState['outcome']; legalMoves?: Card[]; taskPool?: Card[];
-  /** Commander-decision prompt (only present for the commander while a role target must be chosen). */
-  decision?: { role: string; candidates: PlayerId[] };
+  /** Commander-decision prompt (only present for the commander while a decision is pending). */
+  decision?:
+    | { kind: 'role'; role: string; candidates: PlayerId[] }
+    | { kind: 'all-tasks'; candidates: PlayerId[] }
+    | { kind: 'm50-roles'; roles: string[]; candidates: PlayerId[] };
+  /** Distress card-pass prompt (only present for a player who must still submit a card). */
+  distressPass?: { mustSubmit: boolean };
 }
 
 export function toPlayerView(state: GameState, viewer: PlayerId, opts?: { isBot?: Record<PlayerId, boolean>; connected?: Record<PlayerId, boolean> }): PlayerView {

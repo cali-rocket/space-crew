@@ -11,7 +11,7 @@ const base: PlayerView = {
   ],
   missionId: 33, attemptNumber: 1, phase: 'task-assignment',
   currentTrick: { leader: 'p0', plays: [] }, objectives: [], communicationPolicy: 'normal', distressActive: false, outcome: 'in-progress',
-  decision: { role: 'chosen', candidates: ['p1', 'p2'] },
+  decision: { kind: 'role', role: 'chosen', candidates: ['p1', 'p2'] },
 };
 
 test('commander decision panel shows candidates and fires onCommanderAssign', () => {

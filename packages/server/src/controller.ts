@@ -16,9 +16,27 @@ import {
   CommToken,
   assignRole,
   derivePink9Holder,
+  setDistress,
+  submitDistressCard,
 } from '@space-crew/engine';
 
-/** Bind roles that are derivable without player interaction (commander, pink-9 holder). */
+export interface Match {
+  game: GameState;
+  isBot: Record<PlayerId, boolean>;
+  taskPool: Card[];
+  seed: number;
+  step: number;
+  taskCount: number;
+  def: MissionDef;
+  distressDone: boolean;
+}
+
+export type Decision =
+  | { kind: 'role'; role: string; candidates: PlayerId[] }
+  | { kind: 'all-tasks'; candidates: PlayerId[] }
+  | { kind: 'm50-roles'; roles: string[]; candidates: PlayerId[] };
+
+/** Bind roles derivable without interaction (commander, pink-9 holder). */
 function bindDerivableRoles(def: MissionDef, game: GameState): GameState {
   let g = game;
   const cons = def.constraints ?? [];
@@ -31,18 +49,7 @@ function bindDerivableRoles(def: MissionDef, game: GameState): GameState {
   return g;
 }
 
-export interface Match {
-  game: GameState;
-  isBot: Record<PlayerId, boolean>;
-  taskPool: Card[];
-  seed: number;
-  step: number;
-  taskCount: number;
-  def: MissionDef;
-}
-
-/** The unbound player-target role (e.g. 'sick'/'chosen') the commander must decide, or null. */
-function pendingRoleDecision(match: Match): string | null {
+function unboundRole(match: Match): string | null {
   for (const c of match.def.constraints ?? []) {
     if ((c.kind === 'player-trick-count' || c.kind === 'player-exact-tricks') && c.role !== 'commander') {
       if (match.game.roles[c.role] === undefined) return c.role;
@@ -51,86 +58,130 @@ function pendingRoleDecision(match: Match): string | null {
   return null;
 }
 
-export function setupMatch(def: MissionDef, players: PlayerId[], isBot: Record<PlayerId, boolean>, seed: number): Match {
-  const game = bindDerivableRoles(def, createMission(def, { players, seed }));
+function partitionRoles(match: Match): string[] | null {
+  const c = (match.def.constraints ?? []).find((x) => x.kind === 'trick-partition');
+  if (!c || c.kind !== 'trick-partition') return null;
+  const roles = c.parts.map((p) => p.role);
+  return roles.every((r) => match.game.roles[r] !== undefined) ? null : roles;
+}
+
+/** The commander decision still pending (role bind / one-takes-all / M50 roles), or null. */
+export function pendingDecision(match: Match): Decision | null {
+  if (match.game.phase !== 'task-assignment') return null;
+  const nonCmd = match.game.players.filter((p) => p !== match.game.commander);
+  const role = unboundRole(match);
+  if (role !== null) return { kind: 'role', role, candidates: nonCmd };
+  const m50 = partitionRoles(match);
+  if (m50 !== null) return { kind: 'm50-roles', roles: m50, candidates: [...match.game.players] };
+  if (match.def.assignment === 'commander-decision' && match.taskPool.length > 0) {
+    return { kind: 'all-tasks', candidates: nonCmd };
+  }
+  return null;
+}
+
+function distressPending(match: Match): boolean {
+  return match.game.distressActive && !match.distressDone;
+}
+
+export function setupMatch(
+  def: MissionDef,
+  players: PlayerId[],
+  isBot: Record<PlayerId, boolean>,
+  seed: number,
+  distress?: { active: boolean; direction: 'left' | 'right' },
+): Match {
+  let game = bindDerivableRoles(def, createMission(def, { players, seed }));
+  if (distress?.active) game = setDistress(game, true, distress.direction);
   const taskPool = drawTaskCards(seed, def.taskCount);
-  return { game, isBot, taskPool, seed, step: 0, taskCount: def.taskCount, def };
+  return { game, isBot, taskPool, seed, step: 0, taskCount: def.taskCount, def, distressDone: false };
 }
 
 export function advance(match: Match): Match {
   let m = { ...match };
-  let lastStateStr = JSON.stringify(m.game);
+  let lastKey = JSON.stringify([m.game, m.distressDone]);
 
   while (true) {
     const { game, isBot, taskPool } = m;
+    if (game.outcome === 'won' || game.outcome === 'lost' || game.phase === 'mission-result') return m;
 
-    // Check if mission has ended
-    if (game.outcome === 'won' || game.outcome === 'lost') {
-      return m;
-    }
-
-    if (game.phase === 'mission-result') {
-      return m;
-    }
-
-    // Task assignment phase
     if (game.phase === 'task-assignment') {
-      // Commander-decision: bind an unbound player-target role before tasks/tricks.
-      const role = pendingRoleDecision(m);
-      if (role !== null) {
-        if (isBot[game.commander]) {
-          const candidate = game.players.find((p) => p !== game.commander)!;
-          m.game = assignRole(game, role, candidate);
-          m.step++;
+      // 1) Distress card pass (before any decision / pick).
+      if (distressPending(m)) {
+        const committed = game.distressCommits ?? {};
+        const pending = game.players.filter((p) => !committed[p]);
+        const next = pending[0];
+        if (next === undefined) {
+          m.distressDone = true;
+        } else if (isBot[next]) {
+          const hand = (game.hands[next] ?? []).filter((c) => c.suit !== 'rocket');
+          if (hand.length === 0) {
+            m.distressDone = true; // degenerate: only rockets, skip
+          } else {
+            const card = hand.reduce((lo, c) => (c.value < lo.value ? c : lo));
+            m.game = submitDistressCard(game, next, card);
+            if (Object.keys(m.game.distressCommits ?? {}).length === 0) m.distressDone = true;
+            m.step++;
+          }
         } else {
-          return m; // human commander must decide
+          return m; // human must submit
         }
-      } else if (taskPool.length === 0) {
-        // Pool is empty, move to tricks
-        m.game = beginTricks(m.game);
-        m.step++;
-      } else {
-        // Find next picker in round-robin order from commander
-        const commanderIndex = game.players.indexOf(game.commander);
-        const pickCount = m.taskCount - taskPool.length;
-        const nextPickerIndex = (commanderIndex + pickCount) % game.players.length;
-        const nextPicker = game.players[nextPickerIndex]!;
-
-        if (isBot[nextPicker]) {
-          // Bot picks
-          const card = BasicBot.chooseTask(
-            toPlayerView(game, nextPicker, { isBot }),
-            taskPool,
-          );
-          m.game = assignTask(game, nextPicker, card);
-          m.taskPool = taskPool.filter((c) => c.suit !== card.suit || c.value !== card.value);
+      }
+      // 2) Commander decision.
+      else {
+        const dec = pendingDecision(m);
+        if (dec !== null) {
+          if (!isBot[game.commander]) return m; // human commander decides
+          if (dec.kind === 'role') {
+            m.game = assignRole(game, dec.role, dec.candidates[0]!);
+            m.step++;
+          } else if (dec.kind === 'all-tasks') {
+            let g = game;
+            for (const card of taskPool) g = assignTask(g, dec.candidates[0]!, card);
+            m.game = g;
+            m.taskPool = [];
+            m.step++;
+          } else {
+            let g = game;
+            dec.roles.forEach((r, i) => {
+              g = assignRole(g, r, game.players[i % game.players.length]!);
+            });
+            m.game = g;
+            m.step++;
+          }
+        }
+        // 3) Open-pick task assignment.
+        else if (taskPool.length === 0) {
+          m.game = beginTricks(m.game);
           m.step++;
         } else {
-          // Human turn, stop
-          return m;
+          const commanderIndex = game.players.indexOf(game.commander);
+          const pickCount = m.taskCount - taskPool.length;
+          const nextPicker = game.players[(commanderIndex + pickCount) % game.players.length]!;
+          if (isBot[nextPicker]) {
+            const card = BasicBot.chooseTask(toPlayerView(game, nextPicker, { isBot }), taskPool);
+            m.game = assignTask(game, nextPicker, card);
+            m.taskPool = taskPool.filter((c) => c.suit !== card.suit || c.value !== card.value);
+            m.step++;
+          } else {
+            return m; // human picks
+          }
         }
       }
     } else if (game.phase === 'trick-in-progress') {
       const player = currentPlayer(game);
       if (isBot[player]) {
-        // Bot plays
         const view = toPlayerView(game, player, { isBot });
         const legal = view.legalMoves ?? legalMovesFromView(view);
-        const card = BasicBot.playCard(view, legal);
-        m.game = applyPlay(game, player, card);
+        m.game = applyPlay(game, player, BasicBot.playCard(view, legal));
         m.step++;
       } else {
-        // Human turn, stop
-        return m;
+        return m; // human plays
       }
     }
 
-    // Check for infinite loop (state unchanged)
-    const newStateStr = JSON.stringify(m.game);
-    if (newStateStr === lastStateStr) {
-      return m;
-    }
-    lastStateStr = newStateStr;
+    const newKey = JSON.stringify([m.game, m.distressDone]);
+    if (newKey === lastKey) return m; // no progress
+    lastKey = newKey;
   }
 }
 
@@ -141,7 +192,9 @@ export function applyHumanAction(
     | { type: 'pick-task'; card: Card }
     | { type: 'play-card'; card: Card }
     | { type: 'communicate'; card: Card; token: CommToken | null }
-    | { type: 'commander-assign'; assignee: PlayerId },
+    | { type: 'commander-assign'; assignee: PlayerId }
+    | { type: 'commander-assign-roles'; assignments: Record<string, PlayerId> }
+    | { type: 'submit-distress'; card: Card },
 ): Match {
   let m = { ...match };
 
@@ -152,13 +205,36 @@ export function applyHumanAction(
     m.game = applyPlay(m.game, player, action.card);
   } else if (action.type === 'communicate') {
     m.game = communicate(m.game, player, action.card, action.token);
+  } else if (action.type === 'submit-distress') {
+    if (m.distressDone) throw new Error('distress already completed');
+    m.game = submitDistressCard(m.game, player, action.card);
+    if (Object.keys(m.game.distressCommits ?? {}).length === 0) m.distressDone = true;
   } else if (action.type === 'commander-assign') {
     if (player !== m.game.commander) throw new Error('only the commander may decide');
-    const role = pendingRoleDecision(m);
-    if (role === null) throw new Error('no pending commander decision');
+    const dec = pendingDecision(m);
+    if (dec === null || dec.kind === 'm50-roles') throw new Error('no single-assignee decision pending');
     if (action.assignee === m.game.commander) throw new Error('commander cannot choose self');
     if (!m.game.players.includes(action.assignee)) throw new Error('unknown assignee');
-    m.game = assignRole(m.game, role, action.assignee);
+    if (dec.kind === 'role') {
+      m.game = assignRole(m.game, dec.role, action.assignee);
+    } else {
+      let g = m.game;
+      for (const card of m.taskPool) g = assignTask(g, action.assignee, card);
+      m.game = g;
+      m.taskPool = [];
+    }
+  } else if (action.type === 'commander-assign-roles') {
+    if (player !== m.game.commander) throw new Error('only the commander may decide');
+    const dec = pendingDecision(m);
+    if (dec === null || dec.kind !== 'm50-roles') throw new Error('no role-assignment decision pending');
+    const chosen = dec.roles.map((r) => action.assignments[r]);
+    if (chosen.some((a) => a === undefined || !m.game.players.includes(a))) throw new Error('invalid role assignment');
+    if (new Set(chosen).size !== dec.roles.length) throw new Error('each role must be assigned to a distinct player');
+    let g = m.game;
+    dec.roles.forEach((r) => {
+      g = assignRole(g, r, action.assignments[r]!);
+    });
+    m.game = g;
   }
 
   m.step++;
@@ -169,9 +245,12 @@ export function viewFor(match: Match, player: PlayerId) {
   let v = toPlayerView(match.game, player, { isBot: match.isBot });
   if (match.game.phase === 'task-assignment') {
     v = { ...v, taskPool: [...match.taskPool] };
-    const role = pendingRoleDecision(match);
-    if (role !== null && player === match.game.commander) {
-      v = { ...v, decision: { role, candidates: match.game.players.filter((p) => p !== match.game.commander) } };
+    if (distressPending(match)) {
+      const committed = match.game.distressCommits ?? {};
+      if (!committed[player]) v = { ...v, distressPass: { mustSubmit: true } };
+    } else {
+      const dec = pendingDecision(match);
+      if (dec !== null && player === match.game.commander) v = { ...v, decision: dec };
     }
   }
   return v;

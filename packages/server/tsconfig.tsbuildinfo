@@ -1,0 +1,1 @@
+{"root":["./src/campaign.test.ts","./src/campaign.ts","./src/controller.pool.test.ts","./src/controller.test.ts","./src/controller.ts","./src/index.ts","./src/room.ts","./src/wsserver.join.test.ts","./src/wsserver.test.ts","./src/wsserver.ts"],"version":"5.9.3"}
