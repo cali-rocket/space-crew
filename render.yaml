@@ -1,0 +1,11 @@
+# Render Blueprint — one-click deploy of the unified Space Crew server.
+# In Render: New + → Blueprint → connect this repo → it reads this file.
+services:
+  - type: web
+    name: space-crew
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free            # free web service (sleeps after 15m idle; ~50s cold start)
+    region: singapore     # closest free region to Korea
+    healthCheckPath: /     # server returns the client index.html at "/"
+    autoDeploy: true       # redeploy on every push to the connected branch

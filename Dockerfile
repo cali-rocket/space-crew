@@ -4,7 +4,9 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY packages ./packages
 COPY scripts ./scripts
-RUN npm ci
+# --include=dev so devDeps (vite, esbuild) install even if the platform sets
+# NODE_ENV=production during the build stage.
+RUN npm ci --include=dev
 RUN npm run build:deploy
 
 FROM node:20-slim AS run
