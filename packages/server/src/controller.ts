@@ -6,6 +6,7 @@ import {
   createMission,
   drawTaskCards,
   assignTask,
+  assignByDistribution,
   beginTricks,
   currentPlayer,
   applyPlay,
@@ -34,6 +35,7 @@ export interface Match {
 export type Decision =
   | { kind: 'role'; role: string; candidates: PlayerId[] }
   | { kind: 'all-tasks'; candidates: PlayerId[] }
+  | { kind: 'distribute'; candidates: PlayerId[] }
   | { kind: 'm50-roles'; roles: string[]; candidates: PlayerId[] };
 
 /** Bind roles derivable without interaction (commander, pink-9 holder). */
@@ -75,6 +77,10 @@ export function pendingDecision(match: Match): Decision | null {
   if (m50 !== null) return { kind: 'm50-roles', roles: m50, candidates: [...match.game.players] };
   if (match.def.assignment === 'commander-decision' && match.taskPool.length > 0) {
     return { kind: 'all-tasks', candidates: nonCmd };
+  }
+  if (match.def.assignment === 'commander-distribution' && match.taskPool.length > 0) {
+    // Commander hands out the individual orders among the whole crew (incl. self).
+    return { kind: 'distribute', candidates: [...match.game.players] };
   }
   return null;
 }
@@ -140,6 +146,12 @@ export function advance(match: Match): Match {
             m.game = g;
             m.taskPool = [];
             m.step++;
+          } else if (dec.kind === 'distribute') {
+            // Even round-robin split across the crew (bot commander).
+            const entries = taskPool.map((card, i) => ({ spec: { card }, owner: game.players[i % game.players.length]! }));
+            m.game = assignByDistribution(game, entries);
+            m.taskPool = [];
+            m.step++;
           } else {
             let g = game;
             dec.roles.forEach((r, i) => {
@@ -194,6 +206,7 @@ export function applyHumanAction(
     | { type: 'communicate'; card: Card; token: CommToken | null }
     | { type: 'commander-assign'; assignee: PlayerId }
     | { type: 'commander-assign-roles'; assignments: Record<string, PlayerId> }
+    | { type: 'commander-distribute'; assignments: { card: Card; owner: PlayerId }[] }
     | { type: 'submit-distress'; card: Card },
 ): Match {
   let m = { ...match };
@@ -235,6 +248,17 @@ export function applyHumanAction(
       g = assignRole(g, r, action.assignments[r]!);
     });
     m.game = g;
+  } else if (action.type === 'commander-distribute') {
+    if (player !== m.game.commander) throw new Error('only the commander may decide');
+    const dec = pendingDecision(m);
+    if (dec === null || dec.kind !== 'distribute') throw new Error('no distribution decision pending');
+    if (action.assignments.length !== m.taskPool.length) throw new Error('every order must be distributed');
+    for (const a of action.assignments) {
+      if (!m.taskPool.some((c) => c.suit === a.card.suit && c.value === a.card.value)) throw new Error('card not in the task pool');
+      if (!m.game.players.includes(a.owner)) throw new Error('unknown owner');
+    }
+    m.game = assignByDistribution(m.game, action.assignments.map((a) => ({ spec: { card: a.card }, owner: a.owner })));
+    m.taskPool = [];
   }
 
   m.step++;

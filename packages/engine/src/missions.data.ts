@@ -317,7 +317,7 @@ export const MISSIONS: MissionDef[] = [
     sourceText:
       'Your Commander distributes the individual orders.',
     logbookPage: 8,
-    taskCount: 0,
+    taskCount: 7,
     assignment: 'commander-distribution',
   },
 
