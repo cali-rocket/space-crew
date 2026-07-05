@@ -7,6 +7,8 @@ export interface SeatView { player: PlayerId; isBot: boolean; connected: boolean
 export interface PlayerView {
   me: PlayerId; myHand: Card[]; seats: SeatView[]; missionId: number; attemptNumber: number; phase: Phase;
   currentTrick: { leader: PlayerId; plays: { player: PlayerId; card: Card }[]; leadSuit?: Suit };
+  /** Completed tricks so far (public — all played cards are visible). Used for trick-collection animation. */
+  trickHistory?: { leader: PlayerId; winner: PlayerId; plays: { player: PlayerId; card: Card }[] }[];
   objectives: ConstraintDef[]; communicationPolicy: CommunicationPolicy; distressActive: boolean; outcome: GameState['outcome']; legalMoves?: Card[]; taskPool?: Card[];
   /** Commander-decision prompt (only present for the commander while a decision is pending). */
   decision?:
@@ -31,6 +33,7 @@ export function toPlayerView(state: GameState, viewer: PlayerId, opts?: { isBot?
     me: viewer, myHand: [...(state.hands[viewer] ?? [])], seats,
     missionId: state.missionId, attemptNumber: state.attemptNumber, phase: state.phase,
     currentTrick: { leader: state.currentTrick.leader, plays: state.currentTrick.plays.map((p) => ({ ...p })), leadSuit: leadSuit(state.currentTrick as Trick) },
+    trickHistory: state.trickHistory.map((t) => ({ leader: t.leader, winner: t.winner, plays: t.plays.map((p) => ({ ...p })) })),
     objectives: state.constraints, communicationPolicy: state.communicationPolicy, distressActive: state.distressActive, outcome: state.outcome,
   };
   if (state.phase === 'trick-in-progress' && state.outcome === 'in-progress' && currentPlayer(state) === viewer) {

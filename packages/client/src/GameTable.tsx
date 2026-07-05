@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { CardChip } from './Card';
-import { legalMovesFromView } from '@space-crew/engine';
+import { legalMovesFromView, MISSIONS } from '@space-crew/engine';
 import type { Card, PlayerView, ConstraintDef, CommState, OrderToken, CommunicationPolicy, PlayerId } from '@space-crew/engine';
 
 export interface GameTableProps {
@@ -53,10 +53,57 @@ function CommView({ comm }: { comm: CommState }) {
   );
 }
 
+function MissionBriefing({ view }: { view: PlayerView }) {
+  const [open, setOpen] = useState(false);
+  const def = MISSIONS.find((m) => m.id === view.missionId);
+  const taskCount = def?.taskCount ?? view.seats.reduce((n, s) => n + s.tasks.length, 0);
+  const tags: string[] = [`태스크 ${taskCount}개`];
+  if (def?.assignment === 'commander-decision') tags.push('커맨더가 배정');
+  if (def?.assignment === 'commander-distribution') tags.push('커맨더가 분배');
+  const comm = commPolicyText(view.communicationPolicy);
+  if (comm) tags.push(comm);
+  if (view.distressActive) tags.push('조난신호');
+  if (def?.orderTokens?.length) tags.push('순서 토큰');
+  return (
+    <div className="sc-brief">
+      <div className="sc-brief-top">
+        <span className="sc-brief-badge">미션 {view.missionId}</span>
+        <span className="sc-brief-goal">각자 맡은 <b>태스크 카드</b>를 모두 획득하면 성공 · 누구든 <b>남의 태스크</b>를 따면 즉시 실패</span>
+        {def && <button className="sc-brief-toggle" onClick={() => setOpen(!open)}>{open ? '설명 접기' : '임무 설명'}</button>}
+      </div>
+      <div className="sc-brief-tags">
+        {tags.map((t, i) => <span key={i} className="sc-tag">{t}</span>)}
+      </div>
+      {view.objectives.map((o, i) => (
+        <div key={i} className="sc-brief-rule"><span className="sc-dot" />{objectiveText(o)}</div>
+      ))}
+      {open && def && <div className="sc-brief-src">“{def.sourceText}”</div>}
+    </div>
+  );
+}
+
 export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onCommanderAssign, onCommanderAssignRoles, onCommanderDistribute, onSubmitDistress }: GameTableProps) {
   const [selecting, setSelecting] = useState(false);
   const [roleSel, setRoleSel] = useState<Record<string, string>>({});
   const [distSel, setDistSel] = useState<Record<string, string>>({});
+
+  // Trick-collection animation: when a new completed trick appears, briefly show it
+  // being collected by the winner before revealing the next trick.
+  const [collecting, setCollecting] = useState<{ plays: { player: PlayerId; card: Card }[]; winner: PlayerId } | null>(null);
+  const gameKey = `${view.missionId}-${view.attemptNumber}`;
+  const seenTricks = useRef(view.trickHistory?.length ?? 0);
+  const prevGameKey = useRef(gameKey);
+  useEffect(() => {
+    const hist = view.trickHistory ?? [];
+    if (prevGameKey.current !== gameKey) { prevGameKey.current = gameKey; seenTricks.current = hist.length; setCollecting(null); return; }
+    if (hist.length > seenTricks.current) {
+      seenTricks.current = hist.length;
+      const last = hist[hist.length - 1]!;
+      setCollecting({ plays: last.plays, winner: last.winner });
+      const t = setTimeout(() => setCollecting(null), 1400);
+      return () => clearTimeout(t);
+    }
+  }, [view, gameKey]);
 
   const showLegal = view.phase === 'trick-in-progress';
   const legalCards = showLegal ? (view.legalMoves ?? legalMovesFromView(view)) : [];
@@ -64,7 +111,6 @@ export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onComma
   const isLegal = (c: Card) => legalSet.has(`${c.suit}-${c.value}`);
 
   const canCommunicate = view.phase === 'trick-in-progress' && view.currentTrick.leader === view.me && view.currentTrick.plays.length === 0;
-  const commText = commPolicyText(view.communicationPolicy);
   const dec = view.decision;
   const m50Ready = dec?.kind === 'm50-roles' && dec.roles.every((r) => roleSel[r]) && new Set(dec.roles.map((r) => roleSel[r])).size === dec.roles.length;
   const distReady = (() => {
@@ -79,15 +125,11 @@ export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onComma
     <div className="sc-main">
       <div className="sc-title">
         <h1>SPACE CREW</h1>
-        <span className="sub">미션 {view.missionId} · 시도 {view.attemptNumber}</span>
+        <span className="sub">협력 우주 항해 · 시도 {view.attemptNumber}</span>
       </div>
 
-      {/* objectives / communication banners */}
-      {view.objectives.map((o, i) => (
-        <div key={i} className="sc-banner obj"><span className="sc-dot" />{objectiveText(o)}</div>
-      ))}
-      {commText && <div className="sc-banner warn">{commText}</div>}
-      {view.distressActive && <div className="sc-banner warn">조난신호 활성</div>}
+      {/* mission briefing — goal + tasks + special rules */}
+      <MissionBriefing view={view} />
 
       {/* distress card submission */}
       {view.distressPass?.mustSubmit && onSubmitDistress && (
@@ -197,18 +239,32 @@ export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onComma
         </div>
       </div>
 
-      {/* current trick */}
+      {/* current trick (with sequential card-play + winner-collection animation) */}
       <div className="sc-panel">
-        <div className="sc-h">현재 트릭 {view.currentTrick.leadSuit ? `· 리드 ${view.currentTrick.leadSuit}` : ''}</div>
-        <div className="sc-trick">
-          {view.currentTrick.plays.length === 0 && <div className="sc-turn">아직 카드가 없습니다</div>}
-          {view.currentTrick.plays.map((p) => (
-            <div key={p.player} className="slot">
-              <CardChip card={p.card} />
-              <div className="who">{p.player === view.me ? '나' : p.player}</div>
-            </div>
-          ))}
-        </div>
+        <div className="sc-h">{collecting ? '트릭 획득' : `현재 트릭 ${view.currentTrick.leadSuit ? `· 리드 ${view.currentTrick.leadSuit}` : ''}`}</div>
+        {collecting ? (
+          <div className="sc-trick collecting">
+            {collecting.plays.map((p, i) => (
+              <div key={`${p.player}-${p.card.suit}-${p.card.value}`}
+                className={`slot collect ${p.player === collecting.winner ? 'winner' : ''}`}
+                style={{ animationDelay: `${i * 60}ms` }}>
+                <CardChip card={p.card} />
+                <div className="who">{p.player === view.me ? '나' : p.player}</div>
+              </div>
+            ))}
+            <div className="sc-collect-label">🏆 {collecting.winner === view.me ? '내가' : collecting.winner} 획득</div>
+          </div>
+        ) : (
+          <div className="sc-trick">
+            {view.currentTrick.plays.length === 0 && <div className="sc-turn">리드 대기 중…</div>}
+            {view.currentTrick.plays.map((p, i) => (
+              <div key={`${p.player}-${p.card.suit}-${p.card.value}`} className="slot play-in" style={{ animationDelay: `${i * 110}ms` }}>
+                <CardChip card={p.card} />
+                <div className="who">{p.player === view.me ? '나' : p.player}</div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* task pool */}
