@@ -148,3 +148,10 @@
 - M5 뉘앙스(아픈 승무원 'sick' + 태스크 3 혼합), 커맨더 good/bad·yes/no 응답 표시(플레이버).
 - started/full 방 join nack, 방코드 충돌(극단), 재접속 정교화.
 - 영속화/재시작 복원(현재 룸은 인메모리), 다중 인스턴스 확장(룸 레지스트리 외부화).
+
+## 실 배포 완료 — Render (2026-07-05)
+- 깃헙 public 레포 생성·push: **github.com/cali-rocket/space-crew** (커밋 신원은 cali-rocket noreply로 통일 — filter-branch 재작성).
+- `render.yaml`(Blueprint) + Dockerfile `npm ci --include=dev` 보강.
+- **Render API로 서비스 생성·배포**(익명 배포 불가 → 사용자 API 키로 REST 호출): docker/free/싱가포르/health `/`.
+- **라이브: https://space-crew-nflx.onrender.com** (srv-d94vrecvikkc73d2ofq0). e2e 검증 — HTTPS index 200 + 158KB 번들 + SPA fallback, **wss 게임 연결 create→view 정상**.
+- 무료 티어 특성: 15분 무접속 시 슬립(첫 접속 콜드스타트), 재시작 시 인메모리 룸 소실 — 상시가동/영속화는 후속.
