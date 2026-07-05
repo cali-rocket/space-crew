@@ -10,6 +10,7 @@ export interface GameTableProps {
   onCommunicate?(c: Card): void;
   onCommanderAssign?(assignee: PlayerId): void;
   onCommanderAssignRoles?(assignments: Record<string, PlayerId>): void;
+  onCommanderDistribute?(assignments: { card: Card; owner: PlayerId }[]): void;
   onSubmitDistress?(c: Card): void;
 }
 
@@ -52,9 +53,10 @@ function CommView({ comm }: { comm: CommState }) {
   );
 }
 
-export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onCommanderAssign, onCommanderAssignRoles, onSubmitDistress }: GameTableProps) {
+export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onCommanderAssign, onCommanderAssignRoles, onCommanderDistribute, onSubmitDistress }: GameTableProps) {
   const [selecting, setSelecting] = useState(false);
   const [roleSel, setRoleSel] = useState<Record<string, string>>({});
+  const [distSel, setDistSel] = useState<Record<string, string>>({});
 
   const showLegal = view.phase === 'trick-in-progress';
   const legalCards = showLegal ? (view.legalMoves ?? legalMovesFromView(view)) : [];
@@ -65,6 +67,13 @@ export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onComma
   const commText = commPolicyText(view.communicationPolicy);
   const dec = view.decision;
   const m50Ready = dec?.kind === 'm50-roles' && dec.roles.every((r) => roleSel[r]) && new Set(dec.roles.map((r) => roleSel[r])).size === dec.roles.length;
+  const distReady = (() => {
+    if (dec?.kind !== 'distribute' || !view.taskPool) return false;
+    const owners = view.taskPool.map((c) => distSel[`${c.suit}-${c.value}`]);
+    if (owners.some((o) => !o)) return false;
+    const counts = dec.candidates.map((p) => owners.filter((o) => o === p).length);
+    return Math.max(...counts) - Math.min(...counts) <= 1; // even split
+  })();
 
   return (
     <div className="sc-main">
@@ -94,13 +103,15 @@ export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onComma
         </div>
       )}
 
-      {/* commander decision */}
-      {dec && (dec.kind === 'role' || dec.kind === 'all-tasks') && onCommanderAssign && (
+      {/* commander decision (single assignee: role / all-tasks / appoint-no-comm) */}
+      {dec && (dec.kind === 'role' || dec.kind === 'all-tasks' || dec.kind === 'appoint-no-comm') && onCommanderAssign && (
         <div className="sc-panel">
           <div className="sc-h">
             {dec.kind === 'all-tasks'
               ? '커맨더 결정 · 한 명에게 모든 태스크를 맡기세요'
-              : `커맨더 결정 · '${dec.role}' 담당자를 지목하세요 (${dec.role === 'sick' ? 'good/bad' : 'yes/no'} 질문)`}
+              : dec.kind === 'appoint-no-comm'
+                ? '커맨더 결정 · 통신 불가 승무원을 지목하세요'
+                : `커맨더 결정 · '${dec.role}' 담당자를 지목하세요 (${dec.role === 'sick' ? 'good/bad' : 'yes/no'} 질문)`}
           </div>
           <div className="sc-row">
             {dec.candidates.map((p) => (
@@ -108,6 +119,28 @@ export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onComma
                 {p === view.me ? '나' : p}
               </button>
             ))}
+          </div>
+        </div>
+      )}
+      {dec && dec.kind === 'distribute' && onCommanderDistribute && view.taskPool && (
+        <div className="sc-panel">
+          <div className="sc-h">커맨더 결정 · 각 명령(태스크)을 승무원에게 분배하세요 (균등)</div>
+          <div className="sc-pool">
+            {view.taskPool.map((card) => (
+              <label key={`dist-${card.suit}-${card.value}`} className="sc-meta" style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                <CardChip card={card} />
+                <select className="sc-select" data-testid={`distribute-select-${card.suit}-${card.value}`}
+                  value={distSel[`${card.suit}-${card.value}`] ?? ''}
+                  onChange={(e) => setDistSel({ ...distSel, [`${card.suit}-${card.value}`]: e.target.value })}>
+                  <option value="">—</option>
+                  {dec.candidates.map((p) => (<option key={p} value={p}>{p === view.me ? '나' : p}</option>))}
+                </select>
+              </label>
+            ))}
+            <button className="sc-btn primary" data-testid="distribute-confirm" disabled={!distReady}
+              onClick={() => onCommanderDistribute(view.taskPool!.map((card) => ({ card, owner: distSel[`${card.suit}-${card.value}`]! })))}>
+              확정
+            </button>
           </div>
         </div>
       )}

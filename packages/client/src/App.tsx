@@ -82,6 +82,10 @@ export function App({ serverUrl }: AppProps) {
     conn?.send({ t: 'commander-assign-roles', assignments });
   };
 
+  const handleCommanderDistribute = (assignments: { card: Card; owner: string }[]) => {
+    conn?.send({ t: 'commander-distribute', assignments });
+  };
+
   const handleSubmitDistress = (card: Card) => {
     conn?.send({ t: 'submit-distress', card });
   };
@@ -99,7 +103,7 @@ export function App({ serverUrl }: AppProps) {
       )}
 
       {showGameTable && view ? (
-        <GameTable view={view} onPlayCard={handlePlayCard} onPickTask={handlePickTask} onCommunicate={handleCommunicate} onCommanderAssign={handleCommanderAssign} onCommanderAssignRoles={handleCommanderAssignRoles} onSubmitDistress={handleSubmitDistress} />
+        <GameTable view={view} onPlayCard={handlePlayCard} onPickTask={handlePickTask} onCommunicate={handleCommunicate} onCommanderAssign={handleCommanderAssign} onCommanderAssignRoles={handleCommanderAssignRoles} onCommanderDistribute={handleCommanderDistribute} onSubmitDistress={handleSubmitDistress} />
       ) : (
         <Lobby room={room} onCreate={handleCreate} onStart={handleStart} onJoin={handleJoin} />
       )}

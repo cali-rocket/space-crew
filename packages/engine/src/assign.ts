@@ -22,6 +22,18 @@ export function beginTricks(state: GameState): GameState {
   };
 }
 
+/**
+ * Bind a mission's order tokens onto the assigned tasks by assignment order
+ * (token[i] → tasks[i]). Call right before beginTricks so orderViolated engages.
+ * The random task draw means WHICH card carries each token varies by seed, but
+ * the ordering relationship it imposes is faithful to the mission.
+ */
+export function applyOrderTokens(state: GameState, tokens: readonly OrderToken[]): GameState {
+  if (state.phase !== 'task-assignment') throw new Error('order tokens must be bound before tricks begin');
+  const tasks = state.tasks.map((t, i) => (i < tokens.length ? { ...t, order: tokens[i] } : t));
+  return { ...state, tasks };
+}
+
 export interface TaskSpec {
   card: Card;
   order?: OrderToken;
@@ -90,6 +102,12 @@ export function handoverTask(state: GameState, from: PlayerId, to: PlayerId, car
 export function assignRole(state: GameState, key: string, player: PlayerId): GameState {
   if (!state.players.includes(player)) throw new Error(`unknown player ${player}`);
   return { ...state, roles: { ...state.roles, [key]: player } };
+}
+
+/** Bind the crew member the commander appointed as unable to communicate (M11). */
+export function setAppointedNoCommPlayer(state: GameState, player: PlayerId): GameState {
+  if (!state.players.includes(player)) throw new Error(`unknown player ${player}`);
+  return { ...state, appointedNoCommPlayer: player };
 }
 
 export function derivePink9Holder(state: GameState): PlayerId {

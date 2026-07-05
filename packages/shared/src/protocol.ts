@@ -8,6 +8,7 @@ export type ClientToServer =
   | { t: 'communicate'; card: Card; token: CommToken | null }
   | { t: 'commander-assign'; assignee: PlayerId }
   | { t: 'commander-assign-roles'; assignments: Record<string, PlayerId> }
+  | { t: 'commander-distribute'; assignments: { card: Card; owner: PlayerId }[] }
   | { t: 'submit-distress'; card: Card }
   | { t: 'start' };
 

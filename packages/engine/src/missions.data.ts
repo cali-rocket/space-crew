@@ -98,8 +98,10 @@ export const MISSIONS: MissionDef[] = [
       'The Commander appoints another crew member to take care of the recalculation of the course. The task demands the highest concentration, so the particular crew member cannot communicate in this mission.',
     logbookPage: 4,
     taskCount: 4,
+    // Tasks are distributed normally (open-pick). The commander's only decision is to
+    // appoint another crew member who cannot communicate — driven by the oneMemberNoComm
+    // policy (controller 'appoint-no-comm' decision), NOT a one-player-takes-all mission.
     communication: { oneMemberNoComm: true },
-    assignment: 'commander-decision',
   },
   {
     id: 12,
@@ -107,8 +109,9 @@ export const MISSIONS: MissionDef[] = [
       'Immediately after the 1st trick, each of you must draw a random card from the crew member to your right. Then continue playing normally.',
     logbookPage: 4,
     taskCount: 4,
-    // NOTE: The mid-trick card swap is a setup/deal-phase event, not a persistent game constraint.
-    // No engine constraint encoded; handled at the table during setup.
+    // Mid-game event: after the 1st trick, each player draws a random card from their
+    // right neighbour (controller triggers exchangeWithRightNeighbor once).
+    exchangeAfterTrick1: true,
   },
 
   // ── Page 5 ────────────────────────────────────────────────────────────────
@@ -317,7 +320,7 @@ export const MISSIONS: MissionDef[] = [
     sourceText:
       'Your Commander distributes the individual orders.',
     logbookPage: 8,
-    taskCount: 0,
+    taskCount: 7,
     assignment: 'commander-distribution',
   },
 
@@ -351,8 +354,13 @@ export const MISSIONS: MissionDef[] = [
       'Before you start choosing the Order cards, you may place an Order tile on another order without an Order tile.',
     logbookPage: 9,
     taskCount: 8,
-    // NOTE: The "place extra order tile" rule is a pre-selection setup option,
-    // not a persistent constraint. Handled at the table before task assignment.
+    // Base order tiles impose a 1-2 sequence (bound by assignment order at runtime).
+    // The OPTIONAL "place one extra order tile" table action is an advanced setup
+    // choice not modelled here (deferred); the base ordering is enforced.
+    orderTokens: [
+      { kind: 'absolute', position: 1 },
+      { kind: 'absolute', position: 2 },
+    ],
   },
   {
     id: 41,
@@ -438,10 +446,9 @@ export const MISSIONS: MissionDef[] = [
     logbookPage: 11,
     taskCount: 3,
     orderTokens: [{ kind: 'last' }],
-    // LIMITATION: The Ω-order token is assigned to whichever task card draws the
-    // "last" order token during setup — the specific card is unknown at data-encoding
-    // time. A task-in-last-trick constraint with a fixed card cannot be encoded here.
-    // Runtime card-binding is required to enforce this (future work).
+    // The Ω-'last' token is bound at runtime (controller applyOrderTokens) to one of
+    // the drawn task cards; which card carries it varies by seed, but the rule — that
+    // task must be completed in the final trick — is enforced via orderViolated.
   },
   {
     id: 49,
@@ -449,6 +456,13 @@ export const MISSIONS: MissionDef[] = [
       'You can go home! Check all 10 main modules, but pay special attention to life support, drive and communication. Set course for Earth.',
     logbookPage: 11,
     taskCount: 10,
+    // "pay special attention to" 3 modules = sequence order tiles 1-2-3 on three
+    // tasks; bound by assignment order at runtime (specific cards vary by seed).
+    orderTokens: [
+      { kind: 'absolute', position: 1 },
+      { kind: 'absolute', position: 2 },
+      { kind: 'absolute', position: 3 },
+    ],
   },
   {
     id: 50,

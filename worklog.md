@@ -155,3 +155,22 @@
 - **Render API로 서비스 생성·배포**(익명 배포 불가 → 사용자 API 키로 REST 호출): docker/free/싱가포르/health `/`.
 - **라이브: https://space-crew-nflx.onrender.com** (srv-d94vrecvikkc73d2ofq0). e2e 검증 — HTTPS index 200 + 158KB 번들 + SPA fallback, **wss 게임 연결 create→view 정상**.
 - 무료 티어 특성: 15분 무접속 시 슬립(첫 접속 콜드스타트), 재시작 시 인메모리 룸 소실 — 상시가동/영속화는 후속.
+
+## 자가플레이 + 미션 충실도 감사 (2026-07-05)
+- **자가플레이 하니스**(봇3 × 50미션 × 60시드 + 조난 스윕 ≈ 6000판): 크래시·교착·카드보존·트릭승자·승리판정·결정성·조난경로 **이상 0건**. 엔진 기계적 무결성 확인.
+- **미션 인코딩 감사**(워크플로우 21에이전트: sourceText↔인코딩 대조 → 적대검증):
+  - 🔴 **M11 (미문서화 실버그, high)**: "지정된 승무원은 통신 불가" 규칙이 실제로 아무 효과 없음. `appointedNoCommPlayer`가 프로덕션 경로에서 한 번도 설정되지 않음(테스트에서만). → 전원 통신 가능한 평범한 게임으로 플레이됨.
+  - 🔴 **M36 (미문서화 실버그, high)**: taskCount 0 + 제약 0 → 무조건 자동승리(no-op). "커맨더가 명령을 분배" 미션인데 분배할 태스크가 0개. taskCount를 로그북 값으로 채워야 함.
+  - 🟠 **M12 (미문서화 실버그, medium)**: 1트릭 후 오른쪽 이웃과 카드 교환 규칙 미구현 + 코드 주석("셋업에서 처리")이 사실과 다름(트릭 후=게임 중 이벤트). 평범한 4태스크 게임으로 플레이됨.
+  - 🟡 이미 백로그로 문서화된 것(실 격차지만 기지): M24/32/43 커맨더분배→open-pick 폴백, M48 last-trick 미바인딩, M40/49 order 토큰 미인코딩.
+  - ✅ 나머지 39미션 인코딩 충실. M22/23("one by one"·order tile 재배치)는 flavor/셋업옵션으로 판정 → 오탐 기각.
+
+## 감사 결함 수정 완료 (branch: fix/mission-fidelity, 2026-07-05)
+사용자 요청 "백로그까지 전부" → 발견 결함 + 백로그 격차 모두 구현 (TDD, 각 단계 자가플레이 재검증).
+- **M36 no-op**: taskCount 0→7(로그북) + **commander-distribution 구현**(봇 균등 round-robin, 사람 분배 결정+`commander-distribute` 액션; assignByDistribution 균등 검증). M24/32/36/43 모두 실제 분배로 동작.
+- **order 토큰 런타임 바인딩**: `applyOrderTokens`가 배정 순서대로 태스크에 토큰 부여 → `orderViolated` 발동. M48('last') 강제, M49(abs 1-2-3)·M40(abs 1-2) 추가.
+- **M11 통신금지**: `setAppointedNoCommPlayer` + `appoint-no-comm` 결정(봇 자동/사람 지목); M11의 잘못된 `commander-decision`(전부 한 명) 제거 → 태스크는 open-pick, 지목된 승무원만 통신 차단(실제 comm.ts에서 검증).
+- **M12 카드교환**: `exchangeWithRightNeighbor`(시드 결정적, 40장 보존) + `exchangeAfterTrick1` 플래그 + 컨트롤러가 1트릭 후 1회 실행.
+- **클라 UI**: appoint-no-comm/distribute 패널 + protocol `commander-distribute` + ws 핸들러.
+- 결과: **184 테스트 통과**(engine 106/shared 1/server 42/client 35), typecheck 0(4패키지), 자가플레이 HARD 이상 0, 클라 빌드 OK. 커밋 6개.
+- 남은 근사/미구현(문서화): M40 "선택적 추가 order tile" 배치(고급 셋업 옵션), order 토큰의 특정 카드 매핑은 시드별 근사(물리 로그북 레이아웃 필요).
