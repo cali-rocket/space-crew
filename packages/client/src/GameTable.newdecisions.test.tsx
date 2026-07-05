@@ -41,7 +41,7 @@ test('distribute decision: confirm disabled until every order is evenly assigned
   expect(confirm.disabled).toBe(false);
   fireEvent.click(confirm);
   expect(onDistribute).toHaveBeenCalledTimes(1);
-  const arg = onDistribute.mock.calls[0][0];
+  const arg = onDistribute.mock.calls[0]![0];
   expect(arg).toHaveLength(3);
   expect(arg.map((a: { owner: string }) => a.owner).sort()).toEqual(['p0', 'p1', 'p2']);
 });
