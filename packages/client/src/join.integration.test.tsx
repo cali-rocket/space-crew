@@ -122,7 +122,7 @@ describe('join integration', () => {
       // Host's App should transition to GameTable
       await waitFor(
         () => {
-          expect(screen.getByText(/Mission 5/)).toBeInTheDocument();
+          expect(screen.getByText(/미션 5/)).toBeInTheDocument();
           expect(screen.getByText(/크루/)).toBeInTheDocument();
         },
         { timeout: 5000 }

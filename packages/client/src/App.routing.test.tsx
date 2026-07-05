@@ -76,7 +76,7 @@ test('App shows GameTable after view message', async () => {
   FakeWS.last?.onmessage?.({ data: JSON.stringify(viewMsg) });
 
   await waitFor(() => {
-    expect(screen.queryByText(/Mission/i)).toBeInTheDocument();
+    expect(screen.queryByText(/미션/)).toBeInTheDocument();
   });
 });
 

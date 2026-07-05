@@ -30,7 +30,7 @@ test(
     await waitFor(
       () => {
         const createBtn = screen.queryByText(/방 만들기/i);
-        const missionText = screen.queryByText(/Mission/i);
+        const missionText = screen.queryByText(/내 손패/);
         expect(createBtn || missionText).toBeInTheDocument();
       },
       { timeout: 5000 },
@@ -52,7 +52,7 @@ test(
     fireEvent.click(startBtn);
 
     // Wait for game table (Mission header) to appear
-    await waitFor(() => expect(screen.queryByText(/Mission/i)).toBeInTheDocument(), {
+    await waitFor(() => expect(screen.queryByText(/내 손패/)).toBeInTheDocument(), {
       timeout: 5000,
     });
 
@@ -92,7 +92,7 @@ test(
       await waitFor(
         () => {
           const outcome = screen.queryByText(/Mission Result/i);
-          const mission = screen.queryByText(/Mission/i);
+          const mission = screen.queryByText(/내 손패/);
           expect(outcome || mission).toBeInTheDocument();
         },
         { timeout: 10000 },

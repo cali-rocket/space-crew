@@ -20,7 +20,7 @@ describe('GameTable', () => {
   test('renders my hand and fires onPlayCard for a legal card', () => {
     const onPlay = vi.fn();
     render(<GameTable view={view} onPlayCard={onPlay} onPickTask={() => {}} />);
-    expect(screen.getByText(/Mission 1/i)).toBeInTheDocument();
+    expect(screen.getByText(/미션 1/)).toBeInTheDocument();
     fireEvent.click(screen.getByTestId('hand-card-blue-7'));
     expect(onPlay).toHaveBeenCalledWith({ suit: 'blue', value: 7 });
   });

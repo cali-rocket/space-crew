@@ -79,7 +79,7 @@ export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onComma
     <div className="sc-main">
       <div className="sc-title">
         <h1>SPACE CREW</h1>
-        <span className="sub">Mission {view.missionId} · 시도 {view.attemptNumber}</span>
+        <span className="sub">미션 {view.missionId} · 시도 {view.attemptNumber}</span>
       </div>
 
       {/* objectives / communication banners */}
@@ -256,7 +256,7 @@ export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onComma
             return (
               <span key={`${card.suit}-${card.value}`} data-testid={`hand-card-${card.suit}-${card.value}`}
                 className={legal ? '' : 'dim'} onClick={legal ? () => onPlayCard(card) : undefined}>
-                <CardChip card={card} legal={legal} dim={!legal} onClick={legal ? () => onPlayCard(card) : undefined} />
+                <CardChip card={card} legal={legal} dim={!legal} />
               </span>
             );
           })}
@@ -267,7 +267,7 @@ export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onComma
         <div className="sc-panel">
           <div className={`sc-result ${view.outcome}`}>
             <h2>{view.outcome === 'won' ? '🎉 미션 성공' : '💥 미션 실패'}</h2>
-            <div className="sc-meta">Mission {view.missionId} · 시도 {view.attemptNumber}</div>
+            <div className="sc-meta">미션 {view.missionId} · 시도 {view.attemptNumber}</div>
           </div>
         </div>
       )}
