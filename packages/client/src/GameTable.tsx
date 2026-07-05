@@ -13,6 +13,8 @@ export interface GameTableProps {
   onCommanderAssignRoles?(assignments: Record<string, PlayerId>): void;
   onCommanderDistribute?(assignments: { card: Card; owner: PlayerId }[]): void;
   onSubmitDistress?(c: Card): void;
+  onRetry?(): void;
+  onNextMission?(): void;
 }
 
 function objectiveText(c: ConstraintDef): string {
@@ -83,7 +85,7 @@ function MissionBriefing({ view }: { view: PlayerView }) {
   );
 }
 
-export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onCommanderAssign, onCommanderAssignRoles, onCommanderDistribute, onSubmitDistress }: GameTableProps) {
+export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onCommanderAssign, onCommanderAssignRoles, onCommanderDistribute, onSubmitDistress, onRetry, onNextMission }: GameTableProps) {
   const [selecting, setSelecting] = useState(false);
   const [roleSel, setRoleSel] = useState<Record<string, string>>({});
   const [distSel, setDistSel] = useState<Record<string, string>>({});
@@ -306,11 +308,23 @@ export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onComma
         </div>
       </div>
 
-      {view.outcome !== 'in-progress' && (
+      {view.outcome !== 'in-progress' && pb.caughtUp && (
         <div className="sc-panel">
           <div className={`sc-result ${view.outcome}`}>
             <h2>{view.outcome === 'won' ? '🎉 미션 성공' : '💥 미션 실패'}</h2>
             <div className="sc-meta">미션 {view.missionId} · 시도 {view.attemptNumber}</div>
+            <div className="sc-row" style={{ justifyContent: 'center', marginTop: 14 }}>
+              {onRetry && (
+                <button className="sc-btn primary" data-testid="retry" onClick={() => onRetry()}>
+                  🔄 재도전 (새로 딜)
+                </button>
+              )}
+              {onNextMission && view.outcome === 'won' && view.missionId < 50 && (
+                <button className="sc-btn" data-testid="next-mission" onClick={() => onNextMission()}>
+                  ➡️ 다음 미션
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

@@ -61,3 +61,15 @@ export function startRoom(room: Room, def: MissionDef, seed: number): Room {
     started: true,
   };
 }
+
+/** Re-deal and play the given mission as a fresh attempt (retry or next mission). */
+export function restartRoom(room: Room, def: MissionDef, seed: number, attemptNumber: number): Room {
+  const match = advance(setupMatch(def, room.players as PlayerId[], room.isBot, seed, room.distress, attemptNumber));
+  return {
+    ...room,
+    missionId: def.id,
+    match,
+    started: true,
+    outcomeRecorded: false,
+  };
+}

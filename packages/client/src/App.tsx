@@ -90,6 +90,9 @@ export function App({ serverUrl }: AppProps) {
     conn?.send({ t: 'submit-distress', card });
   };
 
+  const handleRetry = () => conn?.send({ t: 'retry' });
+  const handleNextMission = () => conn?.send({ t: 'next-mission' });
+
   // Routing logic
   // If we have a view and the game is in progress, show the game table
   const showGameTable = view && (view.phase === 'trick-in-progress' || view.phase === 'task-assignment' || view.outcome !== 'in-progress');
@@ -103,7 +106,7 @@ export function App({ serverUrl }: AppProps) {
       )}
 
       {showGameTable && view ? (
-        <GameTable view={view} onPlayCard={handlePlayCard} onPickTask={handlePickTask} onCommunicate={handleCommunicate} onCommanderAssign={handleCommanderAssign} onCommanderAssignRoles={handleCommanderAssignRoles} onCommanderDistribute={handleCommanderDistribute} onSubmitDistress={handleSubmitDistress} />
+        <GameTable view={view} onPlayCard={handlePlayCard} onPickTask={handlePickTask} onCommunicate={handleCommunicate} onCommanderAssign={handleCommanderAssign} onCommanderAssignRoles={handleCommanderAssignRoles} onCommanderDistribute={handleCommanderDistribute} onSubmitDistress={handleSubmitDistress} onRetry={handleRetry} onNextMission={handleNextMission} />
       ) : (
         <Lobby room={room} onCreate={handleCreate} onStart={handleStart} onJoin={handleJoin} />
       )}

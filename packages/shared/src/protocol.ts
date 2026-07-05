@@ -10,6 +10,8 @@ export type ClientToServer =
   | { t: 'commander-assign-roles'; assignments: Record<string, PlayerId> }
   | { t: 'commander-distribute'; assignments: { card: Card; owner: PlayerId }[] }
   | { t: 'submit-distress'; card: Card }
+  | { t: 'retry' }
+  | { t: 'next-mission' }
   | { t: 'start' };
 
 export type ServerToClient =

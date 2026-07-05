@@ -109,8 +109,9 @@ export function setupMatch(
   isBot: Record<PlayerId, boolean>,
   seed: number,
   distress?: { active: boolean; direction: 'left' | 'right' },
+  attemptNumber = 1,
 ): Match {
-  let game = bindDerivableRoles(def, createMission(def, { players, seed }));
+  let game = bindDerivableRoles(def, createMission(def, { players, seed, attemptNumber }));
   if (distress?.active) game = setDistress(game, true, distress.direction);
   const taskPool = drawTaskCards(seed, def.taskCount);
   return { game, isBot, taskPool, seed, step: 0, taskCount: def.taskCount, def, distressDone: false, exchangeDone: false };

@@ -32,7 +32,7 @@ function staticHandler(clientDir: string) {
 }
 import { MISSIONS, PlayerId } from '@space-crew/engine';
 import type { ClientToServer, ServerToClient } from '@space-crew/shared';
-import { createRoom, joinRoom, startRoom, Room } from './room';
+import { createRoom, joinRoom, startRoom, restartRoom, Room } from './room';
 import { applyHumanAction, viewFor } from './controller';
 import { recordResult, loadProgress, saveProgress, CrewProgress } from './campaign';
 
@@ -210,6 +210,50 @@ export function startServer(
             started: startedRoom.started,
           });
 
+          broadcastViewToRoom(state.roomCode);
+        } else if ((msg.t === 'retry' || msg.t === 'next-mission') && state.roomCode) {
+          // Re-deal the mission as a fresh attempt (retry) or advance to the next
+          // mission (only after a win). Host only, and only once the game has ended.
+          const room = rooms.get(state.roomCode);
+          if (!room || !room.match) {
+            ws.send(JSON.stringify({ t: 'nack', reason: 'no active game' } as ServerToClient));
+            return;
+          }
+          if (state.playerId !== room.hostPlayerId) {
+            ws.send(JSON.stringify({ t: 'nack', reason: 'only the host can do that' } as ServerToClient));
+            return;
+          }
+          if (room.match.game.outcome === 'in-progress') {
+            ws.send(JSON.stringify({ t: 'nack', reason: 'game still in progress' } as ServerToClient));
+            return;
+          }
+          let missionId = room.missionId;
+          let attemptNumber: number;
+          if (msg.t === 'next-mission') {
+            if (room.match.game.outcome !== 'won') {
+              ws.send(JSON.stringify({ t: 'nack', reason: 'complete the mission first' } as ServerToClient));
+              return;
+            }
+            missionId = room.missionId + 1;
+            attemptNumber = 1;
+          } else {
+            attemptNumber = room.match.game.attemptNumber + 1;
+          }
+          const mission = MISSIONS.find((m) => m.id === missionId);
+          if (!mission) {
+            ws.send(JSON.stringify({ t: 'nack', reason: 'no such mission (campaign complete?)' } as ServerToClient));
+            return;
+          }
+          const roomSeed = room.roomIndex === 0 ? seed : (seed ^ (room.roomIndex * 2654435761)) >>> 0;
+          const dealSeed = (((roomSeed + attemptNumber * 0x9e3779b1) >>> 0) ^ (missionId * 40503)) >>> 0;
+          const restarted = restartRoom(room, mission, dealSeed, attemptNumber);
+          rooms.set(state.roomCode, restarted);
+          broadcastToRoom(state.roomCode, {
+            t: 'room',
+            code: state.roomCode,
+            seats: getSeatInfo(restarted.players, restarted.isBot, restarted.connected),
+            started: restarted.started,
+          });
           broadcastViewToRoom(state.roomCode);
         } else if (msg.t === 'play-card' && state.roomCode && state.playerId) {
           // Apply human action
