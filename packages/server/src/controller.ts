@@ -21,6 +21,7 @@ import {
   derivePink9Holder,
   setDistress,
   submitDistressCard,
+  exchangeWithRightNeighbor,
 } from '@space-crew/engine';
 
 export interface Match {
@@ -32,6 +33,7 @@ export interface Match {
   taskCount: number;
   def: MissionDef;
   distressDone: boolean;
+  exchangeDone: boolean;
 }
 
 export type Decision =
@@ -111,16 +113,26 @@ export function setupMatch(
   let game = bindDerivableRoles(def, createMission(def, { players, seed }));
   if (distress?.active) game = setDistress(game, true, distress.direction);
   const taskPool = drawTaskCards(seed, def.taskCount);
-  return { game, isBot, taskPool, seed, step: 0, taskCount: def.taskCount, def, distressDone: false };
+  return { game, isBot, taskPool, seed, step: 0, taskCount: def.taskCount, def, distressDone: false, exchangeDone: false };
 }
 
 export function advance(match: Match): Match {
   let m = { ...match };
-  let lastKey = JSON.stringify([m.game, m.distressDone]);
+  let lastKey = JSON.stringify([m.game, m.distressDone, m.exchangeDone]);
 
   while (true) {
     const { game, isBot, taskPool } = m;
     if (game.outcome === 'won' || game.outcome === 'lost' || game.phase === 'mission-result') return m;
+
+    // M12: immediately after the 1st trick, each player draws a random card from
+    // their right neighbour (once).
+    if (m.def.exchangeAfterTrick1 && !m.exchangeDone && game.phase === 'trick-in-progress' && game.trickHistory.length >= 1) {
+      m.game = exchangeWithRightNeighbor(game, (m.seed ^ 0x5c12) >>> 0);
+      m.exchangeDone = true;
+      m.step++;
+      lastKey = JSON.stringify([m.game, m.distressDone, m.exchangeDone]);
+      continue;
+    }
 
     if (game.phase === 'task-assignment') {
       // 1) Distress card pass (before any decision / pick).
@@ -207,7 +219,7 @@ export function advance(match: Match): Match {
       }
     }
 
-    const newKey = JSON.stringify([m.game, m.distressDone]);
+    const newKey = JSON.stringify([m.game, m.distressDone, m.exchangeDone]);
     if (newKey === lastKey) return m; // no progress
     lastKey = newKey;
   }

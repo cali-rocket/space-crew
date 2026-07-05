@@ -10,6 +10,8 @@ export interface MissionDef {
   constraints?: ConstraintDef[];
   assignment?: 'open-pick' | 'commander-decision' | 'commander-distribution';
   optionalHandover?: boolean;
+  /** M12: each player takes a random card from their right neighbour after trick 1. */
+  exchangeAfterTrick1?: boolean;
 }
 
 export function createMission(

@@ -109,8 +109,9 @@ export const MISSIONS: MissionDef[] = [
       'Immediately after the 1st trick, each of you must draw a random card from the crew member to your right. Then continue playing normally.',
     logbookPage: 4,
     taskCount: 4,
-    // NOTE: The mid-trick card swap is a setup/deal-phase event, not a persistent game constraint.
-    // No engine constraint encoded; handled at the table during setup.
+    // Mid-game event: after the 1st trick, each player draws a random card from their
+    // right neighbour (controller triggers exchangeWithRightNeighbor once).
+    exchangeAfterTrick1: true,
   },
 
   // ── Page 5 ────────────────────────────────────────────────────────────────
