@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { CardChip } from './Card';
+import { useTrickPlayback } from './useTrickPlayback';
 import { legalMovesFromView, MISSIONS } from '@space-crew/engine';
 import type { Card, PlayerView, ConstraintDef, CommState, OrderToken, CommunicationPolicy, PlayerId } from '@space-crew/engine';
 
@@ -87,30 +88,17 @@ export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onComma
   const [roleSel, setRoleSel] = useState<Record<string, string>>({});
   const [distSel, setDistSel] = useState<Record<string, string>>({});
 
-  // Trick-collection animation: when a new completed trick appears, briefly show it
-  // being collected by the winner before revealing the next trick.
-  const [collecting, setCollecting] = useState<{ plays: { player: PlayerId; card: Card }[]; winner: PlayerId } | null>(null);
-  const gameKey = `${view.missionId}-${view.attemptNumber}`;
-  const seenTricks = useRef(view.trickHistory?.length ?? 0);
-  const prevGameKey = useRef(gameKey);
-  useEffect(() => {
-    const hist = view.trickHistory ?? [];
-    if (prevGameKey.current !== gameKey) { prevGameKey.current = gameKey; seenTricks.current = hist.length; setCollecting(null); return; }
-    if (hist.length > seenTricks.current) {
-      seenTricks.current = hist.length;
-      const last = hist[hist.length - 1]!;
-      setCollecting({ plays: last.plays, winner: last.winner });
-      const t = setTimeout(() => setCollecting(null), 1400);
-      return () => clearTimeout(t);
-    }
-  }, [view, gameKey]);
+  // Replay bot moves card-by-card (with winner collection) so turns visibly rotate.
+  const pb = useTrickPlayback(view);
+  const collecting = pb.collecting;
 
-  const showLegal = view.phase === 'trick-in-progress';
+  // Only offer moves once the card-by-card playback has caught up to the live trick.
+  const showLegal = view.phase === 'trick-in-progress' && pb.caughtUp;
   const legalCards = showLegal ? (view.legalMoves ?? legalMovesFromView(view)) : [];
   const legalSet = new Set(legalCards.map((c) => `${c.suit}-${c.value}`));
   const isLegal = (c: Card) => legalSet.has(`${c.suit}-${c.value}`);
 
-  const canCommunicate = view.phase === 'trick-in-progress' && view.currentTrick.leader === view.me && view.currentTrick.plays.length === 0;
+  const canCommunicate = pb.caughtUp && view.phase === 'trick-in-progress' && view.currentTrick.leader === view.me && view.currentTrick.plays.length === 0;
   const dec = view.decision;
   const m50Ready = dec?.kind === 'm50-roles' && dec.roles.every((r) => roleSel[r]) && new Set(dec.roles.map((r) => roleSel[r])).size === dec.roles.length;
   const distReady = (() => {
@@ -241,13 +229,12 @@ export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onComma
 
       {/* current trick (with sequential card-play + winner-collection animation) */}
       <div className="sc-panel">
-        <div className="sc-h">{collecting ? '트릭 획득' : `현재 트릭 ${view.currentTrick.leadSuit ? `· 리드 ${view.currentTrick.leadSuit}` : ''}`}</div>
+        <div className="sc-h">{collecting ? '트릭 획득' : `현재 트릭 ${pb.leadSuit ? `· 리드 ${pb.leadSuit}` : ''}`}</div>
         {collecting ? (
           <div className="sc-trick collecting">
-            {collecting.plays.map((p, i) => (
+            {collecting.plays.map((p) => (
               <div key={`${p.player}-${p.card.suit}-${p.card.value}`}
-                className={`slot collect ${p.player === collecting.winner ? 'winner' : ''}`}
-                style={{ animationDelay: `${i * 60}ms` }}>
+                className={`slot collect ${p.player === collecting.winner ? 'winner' : ''}`}>
                 <CardChip card={p.card} />
                 <div className="who">{p.player === view.me ? '나' : p.player}</div>
               </div>
@@ -256,9 +243,9 @@ export function GameTable({ view, onPlayCard, onPickTask, onCommunicate, onComma
           </div>
         ) : (
           <div className="sc-trick">
-            {view.currentTrick.plays.length === 0 && <div className="sc-turn">리드 대기 중…</div>}
-            {view.currentTrick.plays.map((p, i) => (
-              <div key={`${p.player}-${p.card.suit}-${p.card.value}`} className="slot play-in" style={{ animationDelay: `${i * 110}ms` }}>
+            {pb.plays.length === 0 && <div className="sc-turn">{pb.caughtUp && view.currentTrick.leader === view.me ? '내가 리드할 차례' : '진행 중…'}</div>}
+            {pb.plays.map((p) => (
+              <div key={`${p.player}-${p.card.suit}-${p.card.value}`} className="slot play-in">
                 <CardChip card={p.card} />
                 <div className="who">{p.player === view.me ? '나' : p.player}</div>
               </div>

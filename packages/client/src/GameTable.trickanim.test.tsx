@@ -38,8 +38,8 @@ test('shows the trick-collection overlay when a new completed trick appears', as
   });
   rerender(<GameTable view={withTrick} onPlayCard={() => {}} onPickTask={() => {}} />);
 
-  // collection overlay appears (panel heading switches + winner label)
-  await waitFor(() => expect(screen.getByText(/트릭 획득/)).toBeInTheDocument());
+  // the trick's cards replay one-by-one, then the collection overlay appears
+  await waitFor(() => expect(screen.getByText(/트릭 획득/)).toBeInTheDocument(), { timeout: 4000 });
   expect(screen.getByText(/🏆/)).toBeInTheDocument();
 });
 
