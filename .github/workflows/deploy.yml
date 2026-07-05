@@ -1,0 +1,29 @@
+name: Deploy to Render
+
+# Push-to-deploy without the Render GitHub App: on every push to main this
+# workflow asks Render to deploy the latest commit via its REST API.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploy
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          SERVICE_ID: srv-d94vrecvikkc73d2ofq0
+        run: |
+          if [ -z "$RENDER_API_KEY" ]; then
+            echo "::error::RENDER_API_KEY secret is not set — add it in repo Settings → Secrets → Actions."
+            exit 1
+          fi
+          echo "Triggering Render deploy for $SERVICE_ID …"
+          curl -fsS -X POST \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H "Content-Type: application/json" \
+            "https://api.render.com/v1/services/$SERVICE_ID/deploys" \
+            -d '{"clearCache":"do_not_clear"}' | { grep -oE '"id":"dep-[^"]+"|"status":"[a-z_]+"' || true; }
+          echo "Deploy requested. Watch it at https://dashboard.render.com/web/$SERVICE_ID"
