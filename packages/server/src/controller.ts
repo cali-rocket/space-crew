@@ -17,6 +17,7 @@ import {
   BasicBot,
   CommToken,
   assignRole,
+  setAppointedNoCommPlayer,
   derivePink9Holder,
   setDistress,
   submitDistressCard,
@@ -37,7 +38,13 @@ export type Decision =
   | { kind: 'role'; role: string; candidates: PlayerId[] }
   | { kind: 'all-tasks'; candidates: PlayerId[] }
   | { kind: 'distribute'; candidates: PlayerId[] }
+  | { kind: 'appoint-no-comm'; candidates: PlayerId[] }
   | { kind: 'm50-roles'; roles: string[]; candidates: PlayerId[] };
+
+function isOneMemberNoComm(game: GameState): boolean {
+  const p = game.communicationPolicy;
+  return typeof p === 'object' && 'oneMemberNoComm' in p;
+}
 
 /** Bind roles derivable without interaction (commander, pink-9 holder). */
 function bindDerivableRoles(def: MissionDef, game: GameState): GameState {
@@ -74,6 +81,10 @@ export function pendingDecision(match: Match): Decision | null {
   const nonCmd = match.game.players.filter((p) => p !== match.game.commander);
   const role = unboundRole(match);
   if (role !== null) return { kind: 'role', role, candidates: nonCmd };
+  if (isOneMemberNoComm(match.game) && match.game.appointedNoCommPlayer === undefined) {
+    // Commander appoints ANOTHER crew member who cannot communicate (M11).
+    return { kind: 'appoint-no-comm', candidates: nonCmd };
+  }
   const m50 = partitionRoles(match);
   if (m50 !== null) return { kind: 'm50-roles', roles: m50, candidates: [...match.game.players] };
   if (match.def.assignment === 'commander-decision' && match.taskPool.length > 0) {
@@ -153,6 +164,9 @@ export function advance(match: Match): Match {
             m.game = assignByDistribution(game, entries);
             m.taskPool = [];
             m.step++;
+          } else if (dec.kind === 'appoint-no-comm') {
+            m.game = setAppointedNoCommPlayer(game, dec.candidates[0]!);
+            m.step++;
           } else {
             let g = game;
             dec.roles.forEach((r, i) => {
@@ -227,11 +241,13 @@ export function applyHumanAction(
   } else if (action.type === 'commander-assign') {
     if (player !== m.game.commander) throw new Error('only the commander may decide');
     const dec = pendingDecision(m);
-    if (dec === null || dec.kind === 'm50-roles') throw new Error('no single-assignee decision pending');
+    if (dec === null || dec.kind === 'm50-roles' || dec.kind === 'distribute') throw new Error('no single-assignee decision pending');
     if (action.assignee === m.game.commander) throw new Error('commander cannot choose self');
     if (!m.game.players.includes(action.assignee)) throw new Error('unknown assignee');
     if (dec.kind === 'role') {
       m.game = assignRole(m.game, dec.role, action.assignee);
+    } else if (dec.kind === 'appoint-no-comm') {
+      m.game = setAppointedNoCommPlayer(m.game, action.assignee);
     } else {
       let g = m.game;
       for (const card of m.taskPool) g = assignTask(g, action.assignee, card);

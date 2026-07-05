@@ -98,8 +98,10 @@ export const MISSIONS: MissionDef[] = [
       'The Commander appoints another crew member to take care of the recalculation of the course. The task demands the highest concentration, so the particular crew member cannot communicate in this mission.',
     logbookPage: 4,
     taskCount: 4,
+    // Tasks are distributed normally (open-pick). The commander's only decision is to
+    // appoint another crew member who cannot communicate — driven by the oneMemberNoComm
+    // policy (controller 'appoint-no-comm' decision), NOT a one-player-takes-all mission.
     communication: { oneMemberNoComm: true },
-    assignment: 'commander-decision',
   },
   {
     id: 12,

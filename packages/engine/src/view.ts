@@ -13,6 +13,7 @@ export interface PlayerView {
     | { kind: 'role'; role: string; candidates: PlayerId[] }
     | { kind: 'all-tasks'; candidates: PlayerId[] }
     | { kind: 'distribute'; candidates: PlayerId[] }
+    | { kind: 'appoint-no-comm'; candidates: PlayerId[] }
     | { kind: 'm50-roles'; roles: string[]; candidates: PlayerId[] };
   /** Distress card-pass prompt (only present for a player who must still submit a card). */
   distressPass?: { mustSubmit: boolean };

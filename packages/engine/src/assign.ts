@@ -104,6 +104,12 @@ export function assignRole(state: GameState, key: string, player: PlayerId): Gam
   return { ...state, roles: { ...state.roles, [key]: player } };
 }
 
+/** Bind the crew member the commander appointed as unable to communicate (M11). */
+export function setAppointedNoCommPlayer(state: GameState, player: PlayerId): GameState {
+  if (!state.players.includes(player)) throw new Error(`unknown player ${player}`);
+  return { ...state, appointedNoCommPlayer: player };
+}
+
 export function derivePink9Holder(state: GameState): PlayerId {
   for (const p of state.players) {
     if ((state.hands[p] ?? []).some((c) => c.suit === 'pink' && c.value === 9)) return p;
