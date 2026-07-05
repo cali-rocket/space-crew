@@ -22,6 +22,18 @@ export function beginTricks(state: GameState): GameState {
   };
 }
 
+/**
+ * Bind a mission's order tokens onto the assigned tasks by assignment order
+ * (token[i] → tasks[i]). Call right before beginTricks so orderViolated engages.
+ * The random task draw means WHICH card carries each token varies by seed, but
+ * the ordering relationship it imposes is faithful to the mission.
+ */
+export function applyOrderTokens(state: GameState, tokens: readonly OrderToken[]): GameState {
+  if (state.phase !== 'task-assignment') throw new Error('order tokens must be bound before tricks begin');
+  const tasks = state.tasks.map((t, i) => (i < tokens.length ? { ...t, order: tokens[i] } : t));
+  return { ...state, tasks };
+}
+
 export interface TaskSpec {
   card: Card;
   order?: OrderToken;

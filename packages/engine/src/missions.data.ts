@@ -351,8 +351,13 @@ export const MISSIONS: MissionDef[] = [
       'Before you start choosing the Order cards, you may place an Order tile on another order without an Order tile.',
     logbookPage: 9,
     taskCount: 8,
-    // NOTE: The "place extra order tile" rule is a pre-selection setup option,
-    // not a persistent constraint. Handled at the table before task assignment.
+    // Base order tiles impose a 1-2 sequence (bound by assignment order at runtime).
+    // The OPTIONAL "place one extra order tile" table action is an advanced setup
+    // choice not modelled here (deferred); the base ordering is enforced.
+    orderTokens: [
+      { kind: 'absolute', position: 1 },
+      { kind: 'absolute', position: 2 },
+    ],
   },
   {
     id: 41,
@@ -438,10 +443,9 @@ export const MISSIONS: MissionDef[] = [
     logbookPage: 11,
     taskCount: 3,
     orderTokens: [{ kind: 'last' }],
-    // LIMITATION: The Ω-order token is assigned to whichever task card draws the
-    // "last" order token during setup — the specific card is unknown at data-encoding
-    // time. A task-in-last-trick constraint with a fixed card cannot be encoded here.
-    // Runtime card-binding is required to enforce this (future work).
+    // The Ω-'last' token is bound at runtime (controller applyOrderTokens) to one of
+    // the drawn task cards; which card carries it varies by seed, but the rule — that
+    // task must be completed in the final trick — is enforced via orderViolated.
   },
   {
     id: 49,
@@ -449,6 +453,13 @@ export const MISSIONS: MissionDef[] = [
       'You can go home! Check all 10 main modules, but pay special attention to life support, drive and communication. Set course for Earth.',
     logbookPage: 11,
     taskCount: 10,
+    // "pay special attention to" 3 modules = sequence order tiles 1-2-3 on three
+    // tasks; bound by assignment order at runtime (specific cards vary by seed).
+    orderTokens: [
+      { kind: 'absolute', position: 1 },
+      { kind: 'absolute', position: 2 },
+      { kind: 'absolute', position: 3 },
+    ],
   },
   {
     id: 50,

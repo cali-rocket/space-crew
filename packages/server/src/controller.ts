@@ -7,6 +7,7 @@ import {
   drawTaskCards,
   assignTask,
   assignByDistribution,
+  applyOrderTokens,
   beginTricks,
   currentPlayer,
   applyPlay,
@@ -163,7 +164,8 @@ export function advance(match: Match): Match {
         }
         // 3) Open-pick task assignment.
         else if (taskPool.length === 0) {
-          m.game = beginTricks(m.game);
+          const tokens = m.def.orderTokens;
+          m.game = beginTricks(tokens && tokens.length ? applyOrderTokens(m.game, tokens) : m.game);
           m.step++;
         } else {
           const commanderIndex = game.players.indexOf(game.commander);
