@@ -42,8 +42,9 @@ test('a full trick resolves to the highest follower and starts the next trick fr
   expect(s.currentTrick.plays).toEqual([]);
 });
 
-test('owner winning their task card marks it fulfilled', () => {
-  // Give each player 3 cards so the mission doesn't end after the first trick
+test('owner winning their task card marks it fulfilled (and wins if it was the last task)', () => {
+  // 1 task, no constraints: fulfilling it completes the mission immediately —
+  // remaining cards are not played out.
   const g = createGame({ players: P, missionId: 1, seed: 1 });
   let s: GameState = {
     ...g,
@@ -60,7 +61,7 @@ test('owner winning their task card marks it fulfilled', () => {
   s = applyPlay(s, 'p1', { suit: 'pink', value: 5 });
   s = applyPlay(s, 'p2', { suit: 'pink', value: 1 });
   expect(s.tasks[0]!.fulfilled).toBe(true);
-  expect(s.outcome).toBe('in-progress');
+  expect(s.outcome).toBe('won');
 });
 
 test('a non-owner winning a task card loses immediately', () => {

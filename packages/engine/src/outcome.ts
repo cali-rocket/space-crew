@@ -16,12 +16,18 @@ export function evaluateOutcome(state: GameState): GameState {
   }
   if (state.outcome === 'won') return state;
   const allFulfilled = state.tasks.every((t) => t.fulfilled);
+  // The mission is won the instant every task is fulfilled AND every constraint is
+  // satisfied — you do NOT play out the remaining cards (rulebook: "as soon as each
+  // of you has completed your tasks, you have completed the mission"). Constraints
+  // that need the whole game (balance, last-trick, exact-tricks, partition, sweep)
+  // stay 'pending' until then, so those missions still play to the end. Ending early
+  // also avoids an unfair loss (e.g. accidentally winning a forbidden card afterwards).
+  if (allFulfilled && constraintsAllSatisfied(state)) {
+    return { ...state, outcome: 'won', phase: 'mission-result' };
+  }
+  // Cards exhausted without meeting the objective → loss.
   if (allTricksPlayed(state)) {
-    if (allFulfilled && constraintsAllSatisfied(state)) {
-      return { ...state, outcome: 'won', phase: 'mission-result' };
-    } else {
-      return { ...state, outcome: 'lost', phase: 'mission-result' };
-    }
+    return { ...state, outcome: 'lost', phase: 'mission-result' };
   }
   return state;
 }
