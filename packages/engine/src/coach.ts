@@ -1,4 +1,4 @@
-import { Card, Color } from './cards';
+import { Card, Color, COLORS } from './cards';
 import { PlayerView } from './view';
 import { CountingState } from './counting';
 
@@ -91,17 +91,20 @@ export function evaluateCoach(cs: CountingState, view: PlayerView): Advice[] {
     out.push({ principle: 'master', severity: 'info', message: `${k(m)}는 마스터 — 리드로 주도권을 잡을 수 있어요.` });
   }
 
-  // 3) Trump-counting (warn) — my top-of-colour card at risk while rockets are out.
+  // 3) Trump-counting (warn) — my HIGHEST card in a colour is a would-be winner but a
+  //    rocket could still trump it. One warning per colour (about my top card only).
   if (cs.rockets.remaining > 0) {
-    for (const c of view.myHand) {
-      if (c.suit === 'rocket') continue;
-      const higher = cs.remaining[c.suit as Color].some((v) => v > c.value);
-      const isMaster = myMasters.some((m) => m.suit === c.suit && m.value === c.value);
-      if (!higher && !isMaster) {
+    for (const color of COLORS) {
+      const mine = view.myHand.filter((c) => c.suit === color);
+      if (mine.length === 0) continue;
+      const top = mine.reduce((a, b) => (b.value > a.value ? b : a));
+      const higherOut = cs.remaining[color].some((v) => v > top.value);
+      const isMaster = myMasters.some((m) => m.suit === color && m.value === top.value);
+      if (!higherOut && !isMaster) {
         out.push({
           principle: 'trump-counting',
           severity: 'warn',
-          message: `${k(c)}는 그 색 최고지만 로켓 ${cs.rockets.remaining}장이 밖 — 트럼프당할 수 있어요. 로켓을 빼내거나 잔여 0까지 기다리세요.`,
+          message: `${k(top)}는 그 색 최고지만 로켓 ${cs.rockets.remaining}장이 밖 — 트럼프당할 수 있어요. 로켓을 빼내거나 잔여 0까지 기다리세요.`,
         });
       }
     }
