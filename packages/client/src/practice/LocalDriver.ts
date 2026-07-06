@@ -17,8 +17,10 @@ const IS_BOT: Record<string, boolean> = { me: false, 'bot-1': true, 'bot-2': tru
 export interface PracticeConn extends Conn {
   /** Practice-only ground truth (opponent hands + truth counting). */
   reveal(): RevealView;
-  /** Number of stored snapshots (for step-back drills — Phase 3). */
+  /** Number of stored snapshots (for step-back drills). */
   snapshotDepth(): number;
+  /** Undo to the previous human-visible state (step-back drill). */
+  stepBack(): void;
 }
 
 export interface PracticeConfig {
@@ -124,6 +126,12 @@ export function createLocalDriver(
     },
     snapshotDepth() {
       return snapshots.length;
+    },
+    stepBack() {
+      if (snapshots.length <= 1) return;
+      snapshots.pop();
+      match = snapshots[snapshots.length - 1]!;
+      emit();
     },
   };
 }

@@ -39,6 +39,26 @@
 .sc-level.active b { color: #c9b8ff; }
 .sc-level:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* ── Drill + mastery ─────────────────────────────────────── */
+.sc-drill, .sc-mastery, .sc-quiz { background: #182238; border: 1px solid #2c3a5a; border-radius: 12px; padding: 12px; }
+.sc-drill-row { display: flex; align-items: center; gap: 8px; }
+.sc-mastery-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 10px; }
+.sc-mastery-label { color: #c7d2ea; width: 66px; }
+.sc-mastery-bar { flex: 1; height: 7px; border-radius: 3.5px; background: #0f1728; overflow: hidden; }
+.sc-mastery-bar > span { display: block; height: 100%; background: #55c07f; }
+.sc-mastery-pct { color: #8fa0c4; width: 30px; text-align: right; }
+
+/* ── L2 quiz ─────────────────────────────────────────────── */
+.sc-quiz-item { border-top: 1px solid #2c3a5a; padding-top: 10px; margin-top: 10px; }
+.sc-quiz-prompt { color: #e8eef7; font-size: 12px; margin-bottom: 8px; }
+.sc-quiz-opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.sc-chip { background: #0f1728; border: 1px solid #2c3a5a; color: #c7d2ea; border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
+.sc-chip.on { background: #2a2140; border-color: #a78bfa; color: #c9b8ff; }
+.sc-chip:disabled { opacity: 0.7; cursor: default; }
+.sc-quiz-result { margin-top: 6px; font-size: 11px; }
+.sc-quiz-result.ok { color: #55c07f; }
+.sc-quiz-result.no { color: #ef6b6b; }
+
 /* ── Counting HUD ────────────────────────────────────────── */
 .sc-hud-off { color: #8fa0c4; font-size: 12px; text-align: center; }
 .sc-hud-rockets { display: flex; align-items: center; gap: 8px; color: #c7d2ea; font-size: 12px; margin-bottom: 10px; }
