@@ -5,7 +5,7 @@ import { GameTable } from './GameTable';
 import { PracticeShell } from './practice/PracticeShell';
 import { PracticeSelector } from './practice/PracticeSelector';
 import { createLocalDriver, type PracticeConn } from './practice/LocalDriver';
-import type { PlayerView, Card } from '@space-crew/engine';
+import type { PlayerView, Card, LessonDef } from '@space-crew/engine';
 import { commClassification } from '@space-crew/engine';
 import type { ServerToClient } from '@space-crew/shared';
 import './theme.css';
@@ -23,6 +23,7 @@ export function App({ serverUrl }: AppProps) {
   const [error, setError] = useState<string | undefined>(undefined);
   const [mode, setMode] = useState<Mode>('online');
   const [practiceConn, setPracticeConn] = useState<PracticeConn | null>(null);
+  const [lessonGoal, setLessonGoal] = useState<string | undefined>(undefined);
 
   // Connect to server on mount (online mode).
   useEffect(() => {
@@ -71,13 +72,21 @@ export function App({ serverUrl }: AppProps) {
     setView(undefined);
     setRoom(undefined);
   };
+  const practiceHandlers = {
+    onMessage(msg: ServerToClient) {
+      if (msg.t === 'view') { setView(msg.view); setError(undefined); }
+      else if (msg.t === 'nack') setError(msg.reason);
+    },
+  };
   const startPractice = (cfg: { missionId: number; seed: number }) => {
-    const drv = createLocalDriver(cfg, {
-      onMessage(msg: ServerToClient) {
-        if (msg.t === 'view') { setView(msg.view); setError(undefined); }
-        else if (msg.t === 'nack') setError(msg.reason);
-      },
-    });
+    setLessonGoal(undefined);
+    const drv = createLocalDriver(cfg, practiceHandlers);
+    setPracticeConn(drv);
+    drv.send({ t: 'start' });
+  };
+  const startLesson = (lesson: LessonDef) => {
+    setLessonGoal(lesson.goal);
+    const drv = createLocalDriver({ missionId: 1, seed: 0, lesson }, practiceHandlers);
     setPracticeConn(drv);
     drv.send({ t: 'start' });
   };
@@ -85,6 +94,7 @@ export function App({ serverUrl }: AppProps) {
     practiceConn?.close();
     setPracticeConn(null);
     setView(undefined);
+    setLessonGoal(undefined);
   };
   const backToLobby = () => {
     exitPractice();
@@ -108,8 +118,8 @@ export function App({ serverUrl }: AppProps) {
   let body: JSX.Element;
   if (mode === 'practice') {
     body = practiceConn && inGame && view
-      ? <PracticeShell view={view} driver={practiceConn} onExit={exitPractice} {...gameTableCallbacks} />
-      : <PracticeSelector onStart={startPractice} onBack={backToLobby} />;
+      ? <PracticeShell view={view} driver={practiceConn} onExit={exitPractice} lessonGoal={lessonGoal} {...gameTableCallbacks} />
+      : <PracticeSelector onStart={startPractice} onStartLesson={startLesson} onBack={backToLobby} />;
   } else {
     body = inGame && view
       ? <GameTable view={view} {...gameTableCallbacks} />

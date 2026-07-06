@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { MISSIONS } from '@space-crew/engine';
-import type { MissionDef } from '@space-crew/engine';
+import { MISSIONS, LESSONS } from '@space-crew/engine';
+import type { MissionDef, LessonDef } from '@space-crew/engine';
 
 /** Phase 1 supports simple missions only (open-pick, no special policies). */
 export function isSupported(m: MissionDef): boolean {
@@ -15,10 +15,11 @@ export function isSupported(m: MissionDef): boolean {
 
 export interface PracticeSelectorProps {
   onStart(cfg: { missionId: number; seed: number }): void;
+  onStartLesson(lesson: LessonDef): void;
   onBack(): void;
 }
 
-export function PracticeSelector({ onStart, onBack }: PracticeSelectorProps) {
+export function PracticeSelector({ onStart, onStartLesson, onBack }: PracticeSelectorProps) {
   const [seed, setSeed] = useState(7);
   const missions = MISSIONS.filter(isSupported);
 
@@ -27,6 +28,24 @@ export function PracticeSelector({ onStart, onBack }: PracticeSelectorProps) {
       <div className="sc-title">
         <h1>훈련소 / Practice</h1>
         <span className="sub">봇 상대 솔로 · 카드 카운팅·전략 연습</span>
+      </div>
+
+      <div className="sc-panel">
+        <div className="sc-h">가이드 레슨 · 개념별 훈련</div>
+        <div className="sc-row" style={{ flexWrap: 'wrap', gap: 8 }}>
+          {LESSONS.map((l) => (
+            <button
+              key={l.id}
+              className="sc-btn"
+              data-testid={`lesson-${l.id}`}
+              title={l.goal}
+              onClick={() => onStartLesson(l)}
+            >
+              📘 {l.title}
+            </button>
+          ))}
+        </div>
+        <div className="sc-meta" style={{ marginTop: 8 }}>고정된 손패로 한 개념씩 — 코치·HUD·리빌이 도와줘요.</div>
       </div>
 
       <div className="sc-panel">

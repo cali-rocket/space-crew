@@ -28,6 +28,18 @@ test('unaided scaffolding hides the HUD and locks reveal', () => {
   expect(screen.queryByTestId('reveal-open')).toBeNull(); // reveal locked at L3
 });
 
+test('guided lesson: selector → fixed-deal shell with a goal banner', () => {
+  render(<App serverUrl="ws://localhost:0" />);
+  fireEvent.click(screen.getByTestId('practice-enter'));
+
+  // Guided lessons listed; starting one drops into the shell with its goal.
+  fireEvent.click(screen.getByTestId('lesson-win-low-card'));
+  expect(screen.getByTestId('practice-shell')).toBeInTheDocument();
+  expect(screen.getByTestId('lesson-goal').textContent).toContain('노랑2');
+  // The pre-assigned task is on the table.
+  expect(screen.getByTestId('counting-hud')).toBeInTheDocument();
+});
+
 test('L2 test mode quizzes the learner and records mastery; drill + mastery rails present', () => {
   render(<App serverUrl="ws://localhost:0" />);
   fireEvent.click(screen.getByTestId('practice-enter'));

@@ -113,3 +113,39 @@ export function createGame(args: {
     constraints,
   };
 }
+
+/**
+ * Build a game from EXPLICIT hands instead of a seeded deal — used only by practice
+ * lessons (a specific position cannot be produced from a seed). Validates a legal
+ * 40-card partition so a malformed lesson fails loudly.
+ */
+export function createGameFromHands(args: {
+  players: PlayerId[];
+  missionId: number;
+  hands: Record<PlayerId, Card[]>;
+  attemptNumber?: number;
+  communicationPolicy?: CommunicationPolicy;
+  distressActive?: boolean;
+  constraints?: ConstraintDef[];
+  roles?: Record<string, PlayerId>;
+}): GameState {
+  const {
+    players, missionId, hands, attemptNumber = 1,
+    communicationPolicy = 'normal', distressActive = false, constraints = [], roles = {},
+  } = args;
+  if (players.length !== 3) throw new Error('exactly 3 players required');
+  const all = players.flatMap((p) => hands[p] ?? []);
+  if (all.length !== 40) throw new Error(`lesson must use all 40 cards, got ${all.length}`);
+  const seen = new Set(all.map((c) => `${c.suit}-${c.value}`));
+  if (seen.size !== 40) throw new Error('lesson has duplicate or missing cards');
+  const commander = players.find((p) => (hands[p] ?? []).some((c) => c.suit === 'rocket' && c.value === 4)) ?? players[0]!;
+  return {
+    players, commander,
+    hands: Object.fromEntries(players.map((p) => [p, [...(hands[p] ?? [])]])),
+    missionId, attemptNumber, phase: 'task-assignment',
+    currentTrick: { leader: commander, plays: [] },
+    trickHistory: [], tasks: [], outcome: 'in-progress',
+    commUsed: Object.fromEntries(players.map((p) => [p, false])),
+    communication: [], communicationPolicy, distressActive, roles, constraints,
+  };
+}

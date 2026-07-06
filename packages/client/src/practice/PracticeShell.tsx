@@ -17,10 +17,11 @@ import './practice.css';
 export interface PracticeShellProps extends GameTableProps {
   driver: PracticeConn;
   onExit?(): void;
+  lessonGoal?: string;
 }
 
 /** Wraps the UNCHANGED GameTable with display-only practice rails + reveal drawer. */
-export function PracticeShell({ driver, onExit, ...gt }: PracticeShellProps) {
+export function PracticeShell({ driver, onExit, lessonGoal, ...gt }: PracticeShellProps) {
   const [level, setLevel] = useState<ScaffoldLevel>('full-assist');
   const [mastery, setMastery] = useState<Mastery>(() => getMastery());
   const [streak, setStreak] = useState(0);
@@ -50,6 +51,9 @@ export function PracticeShell({ driver, onExit, ...gt }: PracticeShellProps) {
       </aside>
 
       <div className="sc-practice-center">
+        {lessonGoal && (
+          <div className="sc-lesson-goal" data-testid="lesson-goal">🎯 {lessonGoal}</div>
+        )}
         <GameTable {...gt} />
         <RevealDrawer driver={driver} allowed={gate.revealAllowed} />
       </div>

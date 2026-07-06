@@ -23,6 +23,11 @@
 .sc-rail { display: flex; flex-direction: column; gap: 12px; position: sticky; top: 8px; }
 .sc-practice-center { min-width: 0; }
 
+.sc-lesson-goal {
+  background: #1c2540; border: 1px solid #a78bfa; border-radius: 10px;
+  padding: 10px 14px; color: #d6cbf2; font-size: 13px; margin-bottom: 10px;
+}
+
 /* ── Scaffolding ─────────────────────────────────────────── */
 .sc-scaffold, .sc-hud {
   background: #182238; border: 1px solid #2c3a5a; border-radius: 12px; padding: 12px;
