@@ -19,3 +19,4 @@ export * from './view';
 export * from './taskdeck';
 export * from './bot';
 export * from './match';
+export * from './counting';
