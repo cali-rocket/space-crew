@@ -11,9 +11,10 @@ export interface LobbyProps {
   onCreate(missionId: number, distress?: { active: boolean; direction: 'left' | 'right' }): void;
   onStart(): void;
   onJoin?(code: string): void;
+  onPractice?(): void;
 }
 
-export function Lobby({ room, onCreate, onStart, onJoin }: LobbyProps) {
+export function Lobby({ room, onCreate, onStart, onJoin, onPractice }: LobbyProps) {
   const [selectedMission, setSelectedMission] = useState(1);
   const [joinCode, setJoinCode] = useState('');
   const [distress, setDistress] = useState(false);
@@ -55,6 +56,16 @@ export function Lobby({ room, onCreate, onStart, onJoin }: LobbyProps) {
           </div>
           <div className="sc-meta" style={{ marginTop: 8 }}>나 + 봇 2명으로 출발합니다. 친구는 방 코드로 들어올 수 있어요.</div>
         </div>
+
+        {onPractice && (
+          <div className="sc-panel">
+            <div className="sc-h">혼자 연습 · 훈련소</div>
+            <div className="sc-row">
+              <span className="sc-meta">봇 상대로 카드 카운팅·전략을 연습해요 (오프라인)</span>
+              <button className="sc-btn" data-testid="practice-enter" onClick={onPractice}>🎯 훈련소 열기</button>
+            </div>
+          </div>
+        )}
 
         <div className="sc-panel">
           <div className="sc-h">방 참가</div>

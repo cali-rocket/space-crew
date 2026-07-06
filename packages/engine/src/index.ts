@@ -18,3 +18,7 @@ export * from './missions.data';
 export * from './view';
 export * from './taskdeck';
 export * from './bot';
+export * from './match';
+export * from './counting';
+export * from './reveal';
+export * from './coach';
