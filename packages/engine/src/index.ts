@@ -20,3 +20,4 @@ export * from './taskdeck';
 export * from './bot';
 export * from './match';
 export * from './counting';
+export * from './reveal';
