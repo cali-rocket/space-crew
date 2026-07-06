@@ -1,4 +1,4 @@
-import { GameState, PlayerId, CommToken } from './state';
+import { GameState, PlayerId, CommToken, createGameFromHands } from './state';
 import { Card } from './cards';
 import { MissionDef, createMission } from './mission';
 import { drawTaskCards } from './taskdeck';
@@ -109,6 +109,24 @@ export function setupMatch(
   if (distress?.active) game = setDistress(game, true, distress.direction);
   const taskPool = drawTaskCards(seed, def.taskCount);
   return { game, isBot, taskPool, seed, step: 0, taskCount: def.taskCount, def, distressDone: false, exchangeDone: false };
+}
+
+/** Build a Match from explicit hands + pre-assigned tasks (practice lessons). */
+export function setupMatchFromHands(
+  def: MissionDef,
+  players: PlayerId[],
+  isBot: Record<PlayerId, boolean>,
+  hands: Record<PlayerId, Card[]>,
+  tasks: { card: Card; owner: PlayerId }[],
+): Match {
+  let game = bindDerivableRoles(
+    def,
+    createGameFromHands({ players, missionId: def.id, hands, communicationPolicy: def.communication ?? 'normal', constraints: def.constraints ?? [] }),
+  );
+  for (const t of tasks) game = assignTask(game, t.owner, t.card);
+  const tokens = def.orderTokens;
+  game = beginTricks(tokens && tokens.length ? applyOrderTokens(game, tokens) : game);
+  return { game, isBot, taskPool: [], seed: 0, step: 0, taskCount: tasks.length, def, distressDone: true, exchangeDone: true };
 }
 
 export function advance(match: Match): Match {

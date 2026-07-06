@@ -44,6 +44,21 @@ describe('createLocalDriver', () => {
     expect(h.nacks).toEqual([]);
   });
 
+  it('stepBack() undoes to the previous human-visible state', () => {
+    const h = harness(1, 7);
+    h.driver.send({ t: 'start' });
+    // advance one human action (pick a task or play a card)
+    const v0 = h.get()!;
+    const depth0 = h.driver.snapshotDepth();
+    if (v0.phase === 'task-assignment' && v0.taskPool?.length) h.driver.send({ t: 'pick-task', card: v0.taskPool[0]! });
+    else if (v0.legalMoves?.length) h.driver.send({ t: 'play-card', card: v0.legalMoves[0]! });
+    const depth1 = h.driver.snapshotDepth();
+    expect(depth1).toBeGreaterThan(depth0);
+    h.driver.stepBack();
+    expect(h.driver.snapshotDepth()).toBe(depth1 - 1);
+    expect(h.nacks).toEqual([]);
+  });
+
   it('reveal() exposes both opponent hands', () => {
     const h = harness(1, 7);
     h.driver.send({ t: 'start' });

@@ -1,13 +1,14 @@
 import type { ClientToServer, ServerToClient } from '@space-crew/shared';
 import {
   setupMatch,
+  setupMatchFromHands,
   advance,
   applyHumanAction,
   viewFor,
   toRevealView,
   MISSIONS,
 } from '@space-crew/engine';
-import type { Match, RevealView } from '@space-crew/engine';
+import type { Match, RevealView, LessonDef } from '@space-crew/engine';
 import type { Conn } from '../conn';
 
 /** The human is always seat identity 'me'; the two bots fill the rest. */
@@ -17,14 +18,18 @@ const IS_BOT: Record<string, boolean> = { me: false, 'bot-1': true, 'bot-2': tru
 export interface PracticeConn extends Conn {
   /** Practice-only ground truth (opponent hands + truth counting). */
   reveal(): RevealView;
-  /** Number of stored snapshots (for step-back drills — Phase 3). */
+  /** Number of stored snapshots (for step-back drills). */
   snapshotDepth(): number;
+  /** Undo to the previous human-visible state (step-back drill). */
+  stepBack(): void;
 }
 
 export interface PracticeConfig {
   missionId: number;
   seed: number;
   distress?: { active: boolean; direction: 'left' | 'right' };
+  /** When set, the match is built from this lesson's explicit hands instead of a seeded deal. */
+  lesson?: LessonDef;
 }
 
 /**
@@ -47,16 +52,22 @@ export function createLocalDriver(
   };
 
   const startMatch = (id: number, att: number) => {
-    const def = MISSIONS.find((m) => m.id === id);
-    if (!def) {
-      handlers.onMessage({ t: 'nack', reason: `unknown mission ${id}` });
-      return;
-    }
-    missionId = id;
     attempt = att;
-    // Vary the deal per attempt while staying reproducible for a given (seed, attempt).
-    const seed = (cfg.seed + (att - 1) * 0x9e37) >>> 0;
-    match = advance(setupMatch(def, [...PLAYERS], { ...IS_BOT }, seed, cfg.distress, att));
+    if (cfg.lesson) {
+      // Lessons are a fixed position from explicit hands (reproducible on every attempt).
+      const def = { id: 1, sourceText: cfg.lesson.title, logbookPage: 0, taskCount: cfg.lesson.tasks.length };
+      match = advance(setupMatchFromHands(def, [...PLAYERS], { ...IS_BOT }, cfg.lesson.hands, cfg.lesson.tasks));
+    } else {
+      const def = MISSIONS.find((m) => m.id === id);
+      if (!def) {
+        handlers.onMessage({ t: 'nack', reason: `unknown mission ${id}` });
+        return;
+      }
+      missionId = id;
+      // Vary the deal per attempt while staying reproducible for a given (seed, attempt).
+      const seed = (cfg.seed + (att - 1) * 0x9e37) >>> 0;
+      match = advance(setupMatch(def, [...PLAYERS], { ...IS_BOT }, seed, cfg.distress, att));
+    }
     snapshots.length = 0;
     snapshots.push(match);
     emit();
@@ -124,6 +135,12 @@ export function createLocalDriver(
     },
     snapshotDepth() {
       return snapshots.length;
+    },
+    stepBack() {
+      if (snapshots.length <= 1) return;
+      snapshots.pop();
+      match = snapshots[snapshots.length - 1]!;
+      emit();
     },
   };
 }

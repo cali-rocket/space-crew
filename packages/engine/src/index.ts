@@ -22,3 +22,5 @@ export * from './match';
 export * from './counting';
 export * from './reveal';
 export * from './coach';
+export * from './scaffolding';
+export * from './lessons.data';
