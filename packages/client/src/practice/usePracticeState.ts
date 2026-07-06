@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { deriveCounting } from '@space-crew/engine';
-import type { PlayerView, CountingState } from '@space-crew/engine';
+import { deriveCounting, evaluateCoach } from '@space-crew/engine';
+import type { PlayerView, CountingState, Advice } from '@space-crew/engine';
 
 const ck = (c: { suit: string; value: number }) => `${c.suit}${c.value}`;
 
@@ -13,10 +13,12 @@ export function hashView(view: PlayerView): string {
   return `${hist}#${trick}#${hand}#${counts}`;
 }
 
-/** Derives the (public-info) counting state for the practice overlays, memoized. */
-export function usePracticeState(view: PlayerView): { counting: CountingState } {
+/** Derives the (public-info) counting state + coach advice for the overlays, memoized. */
+export function usePracticeState(view: PlayerView): { counting: CountingState; advice: Advice[] } {
   const key = hashView(view);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const counting = useMemo(() => deriveCounting(view), [key]);
-  return { counting };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const advice = useMemo(() => evaluateCoach(counting, view), [key]);
+  return { counting, advice };
 }

@@ -62,6 +62,18 @@
   border-radius: 9px; padding: 2px 8px; background: #20180a;
 }
 
+/* ── Coach panel ─────────────────────────────────────────── */
+.sc-coach { background: #182238; border: 1px solid #2c3a5a; border-radius: 12px; padding: 12px; }
+.sc-coach-empty { color: #6b7ba0; font-size: 11px; }
+.sc-advice { display: flex; flex-direction: column; gap: 3px; border-radius: 8px; padding: 8px 10px; margin-top: 8px; border: 1px solid #2c3a5a; }
+.sc-advice.danger { background: #241318; border-color: #ef6b6b; }
+.sc-advice.warn { background: #241f0e; border-color: #e6c14a; }
+.sc-advice.info { background: #151f36; border-color: #2c3a5a; }
+.sc-advice-tag { align-self: flex-start; font-size: 9px; padding: 1px 8px; border-radius: 8px; background: #0f1728; color: #c7d2ea; }
+.sc-advice.danger .sc-advice-tag { color: #ef6b6b; }
+.sc-advice.warn .sc-advice-tag { color: #e6c14a; }
+.sc-advice-msg { color: #d7e0f2; font-size: 11px; line-height: 1.45; }
+
 /* ── Reveal drawer ───────────────────────────────────────── */
 .sc-reveal { margin-top: 12px; }
 .sc-reveal.open {

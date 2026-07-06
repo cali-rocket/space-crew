@@ -5,20 +5,21 @@ export interface ScaffoldGate {
   showMasters: boolean;
   showVoids: boolean;
   showReconstruction: boolean;
+  showCoach: boolean;
   revealAllowed: boolean;
 }
 
-/** Pure display filter over the always-fully-computed counting state (Phase 1 subset). */
+/** Pure display filter over the always-fully-computed counting state (Phase 1/2 subset). */
 export function gateFor(level: ScaffoldLevel): ScaffoldGate {
   switch (level) {
     case 'full-assist':
-      return { showHUD: true, showMasters: true, showVoids: true, showReconstruction: true, revealAllowed: true };
+      return { showHUD: true, showMasters: true, showVoids: true, showReconstruction: true, showCoach: true, revealAllowed: true };
     case 'assist':
-      return { showHUD: true, showMasters: false, showVoids: true, showReconstruction: false, revealAllowed: true };
-    case 'test': // Phase 3 turns this into a quiz; for now it behaves like a light assist.
-      return { showHUD: true, showMasters: false, showVoids: false, showReconstruction: false, revealAllowed: true };
+      return { showHUD: true, showMasters: false, showVoids: true, showReconstruction: false, showCoach: true, revealAllowed: true };
+    case 'test': // Phase 3 turns this into a quiz; for now it behaves like a light assist without the coach.
+      return { showHUD: true, showMasters: false, showVoids: false, showReconstruction: false, showCoach: false, revealAllowed: true };
     case 'unaided':
-      return { showHUD: false, showMasters: false, showVoids: false, showReconstruction: false, revealAllowed: false };
+      return { showHUD: false, showMasters: false, showVoids: false, showReconstruction: false, showCoach: false, revealAllowed: false };
   }
 }
 

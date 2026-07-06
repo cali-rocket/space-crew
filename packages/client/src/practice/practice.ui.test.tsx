@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { render, renderHook } from '@testing-library/react';
-import type { CountingState, PlayerView } from '@space-crew/engine';
+import type { Advice, CountingState, PlayerView } from '@space-crew/engine';
 import { usePracticeState } from './usePracticeState';
 import { CountingHUD } from './CountingHUD';
+import { CoachPanel } from './CoachPanel';
 
 const baseView: PlayerView = {
   me: 'me',
@@ -48,5 +49,18 @@ describe('CountingHUD', () => {
     const { getByTestId, queryByTestId } = render(<CountingHUD counting={cs} showMasters={false} showVoids={false} />);
     expect(getByTestId('hud-cell-pink-3').className).not.toContain('master');
     expect(queryByTestId('hud-voids')).toBeNull();
+  });
+});
+
+describe('CoachPanel', () => {
+  it('renders each advice with its principle tag and message', () => {
+    const advice: Advice[] = [
+      { principle: 'low-task', severity: 'danger', message: '네 태스크 노랑2는 …' },
+      { principle: 'master', severity: 'info', message: '초록7는 마스터 …' },
+    ];
+    const { getByTestId } = render(<CoachPanel advice={advice} />);
+    expect(getByTestId('advice-low-task').className).toContain('danger');
+    expect(getByTestId('advice-low-task').textContent).toContain('저카드 태스크');
+    expect(getByTestId('advice-master').textContent).toContain('마스터');
   });
 });

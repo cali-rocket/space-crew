@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { GameTable, type GameTableProps } from '../GameTable';
 import { usePracticeState } from './usePracticeState';
 import { CountingHUD } from './CountingHUD';
+import { CoachPanel } from './CoachPanel';
 import { RevealDrawer } from './RevealDrawer';
 import { ScaffoldControls } from './ScaffoldControls';
 import { gateFor, type ScaffoldLevel } from './scaffold';
@@ -17,7 +18,7 @@ export interface PracticeShellProps extends GameTableProps {
 export function PracticeShell({ driver, onExit, ...gt }: PracticeShellProps) {
   const [level, setLevel] = useState<ScaffoldLevel>('full-assist');
   const gate = gateFor(level);
-  const { counting } = usePracticeState(gt.view);
+  const { counting, advice } = usePracticeState(gt.view);
 
   return (
     <div className="sc-practice" data-testid="practice-shell">
@@ -39,6 +40,7 @@ export function PracticeShell({ driver, onExit, ...gt }: PracticeShellProps) {
         ) : (
           <div className="sc-hud sc-hud-off">무보조 · 스스로 세는 중</div>
         )}
+        {gate.showCoach && <CoachPanel advice={advice} />}
       </aside>
     </div>
   );
