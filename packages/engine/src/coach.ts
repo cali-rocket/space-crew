@@ -114,7 +114,7 @@ export function evaluateCoach(cs: CountingState, view: PlayerView): Advice[] {
   for (const [p, suits] of Object.entries(cs.voids)) {
     if (p === me || suits.length === 0) continue;
     const s = suits.map((x) => SUIT_K[x] ?? x).join(',');
-    out.push({ principle: 'void', severity: 'info', message: `${p}는 ${s} 보이드 — 미확인 ${s}는 나머지 손에. 소거 단서예요.` });
+    out.push({ principle: 'void', severity: 'info', message: `${p}는 ${s}에 보이드 — 미확인 ${s}은 나머지 손에. 소거 단서예요.` });
   }
   for (const [p, cards] of Object.entries(cs.reconstructed)) {
     const seat = view.seats.find((s) => s.player === p);
